@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "819269999687",
+    "project_id": "comsatshero",
+    "storage_bucket": "comsatshero.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:819269999687:android:fa4f60e6359f8dcaa0a562",
+        "android_client_info": {
+          "package_name": "com.example.comsats_hero"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDoAMmPXkEAduFxccg0M38UycWyHXGwJAs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
