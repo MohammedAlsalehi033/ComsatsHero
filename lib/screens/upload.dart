@@ -3,15 +3,14 @@ import 'package:comsats_hero/theme/Colors.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart' as path;
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import '../models/users.dart';
 import '../services/uploadService.dart';
+import '../services/file_picker_service.dart';
+import '../services/document_scanner_service.dart';
 
 class UploadScreen extends StatefulWidget {
   const UploadScreen({Key? key}) : super(key: key);
@@ -25,14 +24,6 @@ class _UploadScreenState extends State<UploadScreen> {
   final List<String> types = ['Mid', 'Final'];
   User? currentUser = FirebaseAuth.instance.currentUser;
 
-  final List<String> subjects = [
-    'Math',
-    'Physics',
-    'Chemistry',
-    'Biology',
-    'Computer Science'
-  ];
-
   List<File> _selectedFiles = [];
   bool _isUploading = false;
 
@@ -40,26 +31,30 @@ class _UploadScreenState extends State<UploadScreen> {
   String? selectedType;
   String? selectedSubject;
 
-  Future<void> _pickFiles() async {
-    FilePickerResult? result =
-        await FilePicker.platform.pickFiles(allowMultiple: true);
+  final FilePickerService _filePickerService = FilePickerService();
+  final DocumentScannerService _documentScannerService = DocumentScannerService();
 
-    if (result != null) {
-      setState(() {
-        _selectedFiles = result.paths.map((path) => File(path!)).toList();
-      });
-    }
+  Future<void> _pickFiles() async {
+    List<File> files = await _filePickerService.pickFiles();
+    setState(() {
+      _selectedFiles = files;
+    });
+  }
+
+  Future<void> _scanDocuments() async {
+    List<File> files = await _documentScannerService.scanDocuments();
+    setState(() {
+      _selectedFiles = files;
+    });
   }
 
   Future<void> _combineAndUploadFiles() async {
-    if (await UserService.isUserBlocked(currentUser!.email!)){
+    if (await UserService.isUserBlocked(currentUser!.email!)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('You were blocked By admin')),
       );
-      return ;
+      return;
     }
-
-
 
     double _totalFilesSize = 0;
     _selectedFiles.forEach((element) {
@@ -84,30 +79,19 @@ class _UploadScreenState extends State<UploadScreen> {
     });
 
     try {
-      final pdf = pw.Document();
-      for (var file in _selectedFiles) {
-        final image = pw.MemoryImage(file.readAsBytesSync());
-        pdf.addPage(pw.Page(build: (pw.Context context) {
-          return pw.Center(child: pw.Image(image));
-        }));
+      if (selectedYear == null || selectedSubject == null || selectedType == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('please select the proper options from above')),
+        );
+        return;
       }
 
-      final output = File(
-          '${Directory.systemTemp.path}/${DateTime.now().millisecondsSinceEpoch}_combined.pdf');
-      await output.writeAsBytes(await pdf.save());
-      if (selectedYear == null ||
-          selectedSubject == null ||
-          selectedType == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('please select the proper options form above')),
-        );
-      }
-      UploadService.uploadAndAddPaper(
-          output, selectedYear!, selectedSubject!, selectedType!, currentUser!.email!);
+      final combinedPdf = await UploadService.combineFilesToPdf(_selectedFiles);
+      await UploadService.uploadAndAddPaper(
+          combinedPdf, selectedYear!, selectedSubject!, selectedType!, currentUser!.email!);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Files combined and uploaded successfully')),
+        const SnackBar(content: Text('Files combined and uploaded successfully')),
       );
       setState(() {
         _selectedFiles = [];
@@ -121,6 +105,36 @@ class _UploadScreenState extends State<UploadScreen> {
     setState(() {
       _isUploading = false;
     });
+  }
+
+  void _showOptions() {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Wrap(
+            children: <Widget>[
+              ListTile(
+                leading: Icon(Icons.photo_camera),
+                title: Text('Scan Document'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _scanDocuments();
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.file_upload),
+                title: Text('Upload File'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _pickFiles();
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -139,8 +153,10 @@ class _UploadScreenState extends State<UploadScreen> {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
-
-            Text('"Having multiple photos for the exam? Select all your photos at once for quick and easy merging."', style: TextStyle(color: MyColors.textColorSecondary),),
+            Text(
+              '"Having multiple photos for the exam? Select all your photos at once for quick and easy merging."',
+              style: TextStyle(color: MyColors.textColorSecondary),
+            ),
             const SizedBox(height: 20),
             DropdownSearch<String>(
               popupProps: PopupProps.menu(
@@ -234,16 +250,18 @@ class _UploadScreenState extends State<UploadScreen> {
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: _pickFiles,
+              onPressed: _showOptions,
               style: ElevatedButton.styleFrom(
                 backgroundColor: MyColors.primaryColorLight,
               ),
-              child: const Text('Select Files',  style: TextStyle(color: MyColors.textColorLight),),
+              child: const Text(
+                'Select Files',
+                style: TextStyle(color: MyColors.textColorLight),
+              ),
             ),
             const SizedBox(height: 16),
             _selectedFiles.isNotEmpty
-                ? Text(
-                    'Selected Files: ${_selectedFiles.map((file) => path.basename(file.path)).join(', ')}')
+                ? Text('Selected Files: ${_selectedFiles.map((file) => path.basename(file.path)).join(', ')}')
                 : const Text('No files selected'),
             const SizedBox(height: 16),
             _isUploading
@@ -252,23 +270,19 @@ class _UploadScreenState extends State<UploadScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: MyColors.primaryColorLight,
               ),
-                    onPressed: _combineAndUploadFiles,
-                    child: const Text('Combine and Upload',  style: TextStyle(color: MyColors.textColorLight)),
-                  ),
+              onPressed: _combineAndUploadFiles,
+              child: const Text('Combine and Upload', style: TextStyle(color: MyColors.textColorLight)),
+            ),
             _selectedFiles.isNotEmpty
                 ? Column(
-                    children: _selectedFiles.map((file) {
-                      int fileSize = file.lengthSync();
-                      return Text(
-                        "Size of the file " +
-                            (fileSize / (1024 * 1024))
-                                .toString()
-                                .substring(0, 5) +
-                            "MB",
-                        textAlign: TextAlign.left,
-                      );
-                    }).toList(),
-                  )
+              children: _selectedFiles.map((file) {
+                int fileSize = file.lengthSync();
+                return Text(
+                  "Size of the file " + (fileSize / (1024 * 1024)).toString().substring(0, 5) + "MB",
+                  textAlign: TextAlign.left,
+                );
+              }).toList(),
+            )
                 : const Text('No files selected'),
           ],
         ),

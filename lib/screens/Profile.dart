@@ -3,6 +3,8 @@ import 'package:comsats_hero/screens/MainScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import 'LoginScreen.dart';
+
 class Profile extends StatefulWidget {
   const Profile({super.key});
 
@@ -30,6 +32,14 @@ class _ProfileState extends State<Profile> {
     'RHI', 'RIR', 'RIS', 'RME', 'RMG', 'RMI', 'RMS', 'RMT', 'RMV', 'RPH',
     'RPM', 'RRG', 'RSE'
   ];
+
+  void _signOut() async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => SignningWidget()), // Assuming MainScreen is your login screen
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -151,13 +161,12 @@ class _ProfileState extends State<Profile> {
                           final registrationNumber = '$_session$_year-$_major-$_regNumber';
                           if (registrationNumber.length == 12) {
                             print('Registration Number: $registrationNumber');
-                            UserService.addRollNumber(user!.email!,registrationNumber);
+                            UserService.addRollNumber(user!.email!, registrationNumber);
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(builder: (context) => MainScreen()),
                             );
-        
-                        } else {
+                          } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(content: Text('Registration number must be 12 characters long')),
                             );
@@ -165,6 +174,14 @@ class _ProfileState extends State<Profile> {
                         }
                       },
                       child: const Text('Save Registration Number'),
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: _signOut,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red, // Background color
+                      ),
+                      child: const Text('Sign Out'),
                     ),
                   ],
                 ),

@@ -1,13 +1,15 @@
 import 'package:comsats_hero/screens/Contributions.dart';
 import 'package:comsats_hero/screens/Search.dart';
+import 'package:comsats_hero/screens/photoTaker.dart';
 import 'package:comsats_hero/screens/verifiedPapers.dart';
 import 'package:flutter/material.dart';
 import '../theme/Colors.dart';
 import 'profile.dart';
 import 'upload.dart';
-
+import 'package:comsats_hero/screens/SignInTest.dart';
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
+  static String id = 'home_screen';
 
   @override
   _MainScreenState createState() => _MainScreenState();
@@ -55,7 +57,7 @@ class _MainScreenState extends State<MainScreen> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const Profile()),
+                MaterialPageRoute(builder: (context) => const Phototaker()),
               );
             },
           ),

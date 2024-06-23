@@ -1,10 +1,28 @@
+import 'package:camera/camera.dart';
 import 'package:comsats_hero/screens/MainScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'screens/LoginScreen.dart';
+
+
+
+List<CameraDescription> cameras = [];
+
 void main() async{
+
+
+
+
   WidgetsFlutterBinding.ensureInitialized();
+
+  try {
+    cameras = await availableCameras();
+
+  } on CameraException catch (e) {
+    print(e.code);
+  }
+
   await Firebase.initializeApp(
       options: const FirebaseOptions(
         apiKey: 'AIzaSyDoAMmPXkEAduFxccg0M38UycWyHXGwJAs',
