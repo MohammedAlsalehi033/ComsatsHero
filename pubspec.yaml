@@ -53,6 +53,7 @@ dependencies:
   camera: ^0.10.6
   cunning_document_scanner: ^1.2.3
   path_provider: ^2.1.3
+  mime: ^1.0.5
 dev_dependencies:
   flutter_test:
     sdk: flutter

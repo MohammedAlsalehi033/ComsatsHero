@@ -3,6 +3,7 @@ import 'package:comsats_hero/theme/Colors.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:mime/mime.dart';
 import 'dart:io';
 import 'package:path/path.dart' as path;
 import 'package:pdf/widgets.dart' as pw;
@@ -32,7 +33,8 @@ class _UploadScreenState extends State<UploadScreen> {
   String? selectedSubject;
 
   final FilePickerService _filePickerService = FilePickerService();
-  final DocumentScannerService _documentScannerService = DocumentScannerService();
+  final DocumentScannerService _documentScannerService =
+      DocumentScannerService();
 
   Future<void> _pickFiles() async {
     List<File> files = await _filePickerService.pickFiles();
@@ -56,15 +58,16 @@ class _UploadScreenState extends State<UploadScreen> {
       return;
     }
 
-    double _totalFilesSize = 0;
-    _selectedFiles.forEach((element) {
-      _totalFilesSize = _totalFilesSize + element.lengthSync();
-    });
+    double totalFilesSize = 0;
+    for (var file in _selectedFiles) {
+      totalFilesSize += file.lengthSync();
+    }
 
-    if (_totalFilesSize / (1024 * 1024) > 10) {
+    if (totalFilesSize / (1024 * 1024) > 10) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Files must be less than 10 MB')),
       );
+      return;
     }
 
     if (_selectedFiles.isEmpty) {
@@ -74,21 +77,46 @@ class _UploadScreenState extends State<UploadScreen> {
       return;
     }
 
+    if (selectedYear == null || selectedSubject == null || selectedType == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select the proper options from above')),
+      );
+      return;
+    }
+
+    print(_selectedFiles.length);
+    if (containsMultipleFilesWithPdf(_selectedFiles)) {
+      if (_selectedFiles.length <= 1) {
+        setState(() {
+          _isUploading = true;
+        });
+        await UploadService.uploadAndAddPaper(_selectedFiles[0], selectedYear!,
+            selectedSubject!, selectedType!, currentUser!.email!);
+        setState(() {
+          _isUploading = false;
+        });
+        Navigator.pop(context);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Files uploaded successfully')),
+        );
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("You can't upload multiple files containing PDFs")),
+      );
+      return;
+    }
+
     setState(() {
       _isUploading = true;
     });
 
     try {
-      if (selectedYear == null || selectedSubject == null || selectedType == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('please select the proper options from above')),
-        );
-        return;
-      }
-
       final combinedPdf = await UploadService.combineFilesToPdf(_selectedFiles);
-      await UploadService.uploadAndAddPaper(
-          combinedPdf, selectedYear!, selectedSubject!, selectedType!, currentUser!.email!);
+      await UploadService.uploadAndAddPaper(combinedPdf, selectedYear!,
+          selectedSubject!, selectedType!, currentUser!.email!);
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Files combined and uploaded successfully')),
@@ -105,7 +133,27 @@ class _UploadScreenState extends State<UploadScreen> {
     setState(() {
       _isUploading = false;
     });
+
+    Navigator.pop(context);
+
   }
+
+  bool isPDF(String path) {
+    final mimeType = lookupMimeType(path);
+    return mimeType != null && mimeType.contains('application/pdf');
+  }
+
+  bool containsMultipleFilesWithPdf(List<File> files) {
+    bool hasPdf = false;
+
+    for (var file in files) {
+      if (isPDF(file.path)) {
+          return true;
+      }
+    }
+    return false;
+  }
+
 
   void _showOptions() {
     showModalBottomSheet(
@@ -261,28 +309,36 @@ class _UploadScreenState extends State<UploadScreen> {
             ),
             const SizedBox(height: 16),
             _selectedFiles.isNotEmpty
-                ? Text('Selected Files: ${_selectedFiles.map((file) => path.basename(file.path)).join(', ')}')
+                ? Text(
+                    'Selected Files: ${_selectedFiles.map((file) => path.basename(file.path)).join(', ')}')
                 : const Text('No files selected'),
             const SizedBox(height: 16),
             _isUploading
                 ? const Center(child: CircularProgressIndicator())
                 : ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: MyColors.primaryColorLight,
-              ),
-              onPressed: _combineAndUploadFiles,
-              child: const Text('Combine and Upload', style: TextStyle(color: MyColors.textColorLight)),
-            ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: MyColors.primaryColorLight,
+                    ),
+                    onPressed: ()async{
+                      await _combineAndUploadFiles();
+                    },
+                    child: const Text('Combine and Upload',
+                        style: TextStyle(color: MyColors.textColorLight)),
+                  ),
             _selectedFiles.isNotEmpty
                 ? Column(
-              children: _selectedFiles.map((file) {
-                int fileSize = file.lengthSync();
-                return Text(
-                  "Size of the file " + (fileSize / (1024 * 1024)).toString().substring(0, 5) + "MB",
-                  textAlign: TextAlign.left,
-                );
-              }).toList(),
-            )
+                    children: _selectedFiles.map((file) {
+                      int fileSize = file.lengthSync();
+                      return Text(
+                        "Size of the file " +
+                            (fileSize / (1024 * 1024))
+                                .toString()
+                                .substring(0, 5) +
+                            "MB",
+                        textAlign: TextAlign.left,
+                      );
+                    }).toList(),
+                  )
                 : const Text('No files selected'),
           ],
         ),
