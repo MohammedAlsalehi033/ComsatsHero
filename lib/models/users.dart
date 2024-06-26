@@ -50,4 +50,15 @@ class UserService {
   static Stream<QuerySnapshot<Object?>> getChampions ()  {
     return usersCollection.orderBy('rank', descending: true).snapshots();
   }
+
+  static Future<void> decreaseRank(String userID)async {
+    late int currentRank;
+    await getUser(userID).then((value){
+      currentRank = value['rank'];
+    });
+
+    await usersCollection.doc(userID).update({
+      "rank" : currentRank - 1
+    });
+  }
 }

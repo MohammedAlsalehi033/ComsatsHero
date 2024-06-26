@@ -1,4 +1,5 @@
 import 'package:comsats_hero/models/users.dart';
+import 'package:comsats_hero/theme/Colors.dart';
 import 'package:comsats_hero/widgets/Cards.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -126,13 +127,24 @@ class PaperDetailScreen extends StatelessWidget {
                 Navigator.pop(context);
               },
               child: Text('Verify Paper'),
+              style: ElevatedButton.styleFrom(backgroundColor: MyColors.primaryColorLight,foregroundColor: MyColors.white),
             ),
             SizedBox(height: 10),
             ElevatedButton(
               onPressed: () async {
-            await UserService.blockUser(paper['userId']);
-            await PaperService.deletePaper(paper.id);
-            Navigator.pop(context);
+                await PaperService.deletePaper(paper.id);
+                await UserService.decreaseRank(paper['userId']);
+                Navigator.pop(context);
+              },
+              child: Text('Delete paper'),
+              style: ElevatedButton.styleFrom(backgroundColor: MyColors.primaryColorLight,foregroundColor: MyColors.white),
+            ),
+            SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () async {
+                await UserService.blockUser(paper['userId']);
+                await PaperService.deletePaper(paper.id);
+                Navigator.pop(context);
               },
               child: Text('Block User'),
               style: ElevatedButton.styleFrom(

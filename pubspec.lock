@@ -680,6 +680,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.10.8"
+  pdf_compressor:
+    dependency: "direct main"
+    description:
+      name: pdf_compressor
+      sha256: "83a2e3cb5e4b526f573b9e7f4e2a19d080656c807c6f597246cd2be2349b0db5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.0"
   pdf_widget_wrapper:
     dependency: transitive
     description:

@@ -63,9 +63,9 @@ class _UploadScreenState extends State<UploadScreen> {
       totalFilesSize += file.lengthSync();
     }
 
-    if (totalFilesSize / (1024 * 1024) > 10) {
+    if (totalFilesSize / (1024 * 1024) > 3) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Files must be less than 10 MB')),
+        const SnackBar(content: Text('Files must be less than 3 MB')),
       );
       return;
     }
