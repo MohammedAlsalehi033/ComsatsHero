@@ -1,17 +1,15 @@
-import 'package:comsats_hero/models/subjexts.dart';
 import 'package:comsats_hero/theme/Colors.dart';
-import 'package:dropdown_search/dropdown_search.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mime/mime.dart';
 import 'dart:io';
 import 'package:path/path.dart' as path;
-import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
+import 'package:pdf_compressor/pdf_compressor.dart';
 import '../models/users.dart';
 import '../services/uploadService.dart';
 import '../services/file_picker_service.dart';
 import '../services/document_scanner_service.dart';
+import '../widgets/MyDropDownSearch.dart';
 
 class UploadScreen extends StatefulWidget {
   const UploadScreen({Key? key}) : super(key: key);
@@ -21,13 +19,10 @@ class UploadScreen extends StatefulWidget {
 }
 
 class _UploadScreenState extends State<UploadScreen> {
-  final List<String> years = ['2022', '2021', '2020', '2019', '2018'];
-  final List<String> types = ['Mid', 'Final'];
-  User? currentUser = FirebaseAuth.instance.currentUser;
 
+  User? currentUser = FirebaseAuth.instance.currentUser;
   List<File> _selectedFiles = [];
   bool _isUploading = false;
-
   String? selectedYear;
   String? selectedType;
   String? selectedSubject;
@@ -63,9 +58,9 @@ class _UploadScreenState extends State<UploadScreen> {
       totalFilesSize += file.lengthSync();
     }
 
-    if (totalFilesSize / (1024 * 1024) > 3) {
+    if (totalFilesSize / (1024 * 1024) > 5) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Files must be less than 3 MB')),
+        const SnackBar(content: Text('Files must be less than 5 MB')),
       );
       return;
     }
@@ -90,7 +85,10 @@ class _UploadScreenState extends State<UploadScreen> {
         setState(() {
           _isUploading = true;
         });
-        await UploadService.uploadAndAddPaper(_selectedFiles[0], selectedYear!,
+
+        await PdfCompressor.compressPdfFile(_selectedFiles[0].path, "${_selectedFiles[0].path}compressed", CompressQuality.HIGH);
+        File _compressedFile = File("${_selectedFiles[0].path}compressed");
+        await UploadService.uploadAndAddPaper(_compressedFile, selectedYear!,
             selectedSubject!, selectedType!, currentUser!.email!);
         setState(() {
           _isUploading = false;
@@ -115,7 +113,9 @@ class _UploadScreenState extends State<UploadScreen> {
 
     try {
       final combinedPdf = await UploadService.combineFilesToPdf(_selectedFiles);
-      await UploadService.uploadAndAddPaper(combinedPdf, selectedYear!,
+      await PdfCompressor.compressPdfFile(combinedPdf.path, "${combinedPdf.path}compressed", CompressQuality.HIGH);
+      File _comperssedPDF = File("${combinedPdf.path}compressed");
+      await UploadService.uploadAndAddPaper(_comperssedPDF, selectedYear!,
           selectedSubject!, selectedType!, currentUser!.email!);
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -185,12 +185,20 @@ class _UploadScreenState extends State<UploadScreen> {
     );
   }
 
+  void setSubject(String? subject){
+    selectedSubject = subject;
+  }
+  void setYear(String? year){
+    selectedYear = year;
+  }
+  void setType(String? type){
+    selectedType = type;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Upload Paper'),
-      ),
+      appBar: AppBar(),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -205,97 +213,8 @@ class _UploadScreenState extends State<UploadScreen> {
               '"Having multiple photos for the exam? Select all your photos at once for quick and easy merging."',
               style: TextStyle(color: MyColors.textColorSecondary),
             ),
-            const SizedBox(height: 20),
-            DropdownSearch<String>(
-              popupProps: PopupProps.menu(
-                showSelectedItems: true,
-                showSearchBox: true,
-                searchDelay: Duration(seconds: 0),
-                title: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: const Text('Select Year'),
-                ),
-                fit: FlexFit.loose,
-                constraints: const BoxConstraints(maxHeight: 300),
-              ),
-              items: years,
-              dropdownDecoratorProps: DropDownDecoratorProps(
-                dropdownSearchDecoration: const InputDecoration(
-                  labelText: "Year",
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              onChanged: (value) {
-                setState(() {
-                  selectedYear = value;
-                });
-              },
-              selectedItem: selectedYear,
-            ),
-            const SizedBox(height: 20),
-            DropdownSearch<String>(
-              popupProps: PopupProps.menu(
-                showSelectedItems: true,
-                showSearchBox: true,
-                title: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: const Text('Select Type'),
-                ),
-                fit: FlexFit.loose,
-                constraints: const BoxConstraints(maxHeight: 300),
-              ),
-              items: types,
-              dropdownDecoratorProps: DropDownDecoratorProps(
-                dropdownSearchDecoration: const InputDecoration(
-                  labelText: "Type",
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              onChanged: (value) {
-                setState(() {
-                  selectedType = value;
-                });
-              },
-              selectedItem: selectedType,
-            ),
-            const SizedBox(height: 20),
-            FutureBuilder<List<String>>(
-              future: MySubjects.getSubjects(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  return const Text('Error loading subjects');
-                } else {
-                  final subjects = snapshot.data ?? [];
-                  return DropdownSearch<String>(
-                    popupProps: PopupProps.menu(
-                      showSelectedItems: true,
-                      showSearchBox: true,
-                      title: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: const Text('Select Subject'),
-                      ),
-                      fit: FlexFit.loose,
-                      constraints: const BoxConstraints(maxHeight: 300),
-                    ),
-                    items: subjects,
-                    dropdownDecoratorProps: DropDownDecoratorProps(
-                      dropdownSearchDecoration: const InputDecoration(
-                        labelText: "Subject",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    onChanged: (value) {
-                      setState(() {
-                        selectedSubject = value;
-                      });
-                    },
-                    selectedItem: selectedSubject,
-                  );
-                }
-              },
-            ),
+            Mydropdownsearch(setSubject: setSubject, setType: setType,setYear: setYear,),
+
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _showOptions,

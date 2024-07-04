@@ -4,8 +4,8 @@ import 'package:comsats_hero/widgets/Cards.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../models/papers.dart';import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
-
+import '../models/papers.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 class VerifiedPapersScreen extends StatefulWidget {
   @override
@@ -25,7 +25,10 @@ class _VerifiedPapersScreenState extends State<VerifiedPapersScreen> {
   Future<void> checkAdminStatus() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      DocumentSnapshot adminDoc = await FirebaseFirestore.instance.collection('admins').doc(user.email).get();
+      DocumentSnapshot adminDoc = await FirebaseFirestore.instance
+          .collection('admins')
+          .doc(user.email)
+          .get();
 
       if (adminDoc.exists) {
         setState(() {
@@ -95,71 +98,136 @@ class _VerifiedPapersScreenState extends State<VerifiedPapersScreen> {
   }
 }
 
-class PaperDetailScreen extends StatelessWidget {
+class PaperDetailScreen extends StatefulWidget {
   final DocumentSnapshot paper;
 
   PaperDetailScreen({required this.paper});
 
   @override
+  _PaperDetailScreenState createState() => _PaperDetailScreenState();
+}
+
+class _PaperDetailScreenState extends State<PaperDetailScreen> {
+  List<DocumentSnapshot> similarPapers = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchSimilarPapers();
+  }
+
+  Future<void> fetchSimilarPapers() async {
+    try {
+      final papers = await PaperService.fetchSimilarPapers(
+        widget.paper['subject'],
+        widget.paper['type'],
+        widget.paper['year'], // Ensure 'year' exists in paper document
+        widget.paper.id,
+      );
+      setState(() {
+        similarPapers = papers;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to fetch similar papers: $e')),
+      );
+    }
+  }
+
+  void navigateToPaperDetail(DocumentSnapshot paper) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PaperDetailScreen(paper: paper),
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    DateTime dt = (widget.paper['uploadDate'] as Timestamp).toDate();
+    return Scaffold(floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
+      floatingActionButton: Row(mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          FloatingActionButton.large(onPressed: () async {
+            await PaperService.verifyPaper(widget.paper);
+            Navigator.pop(context);
+          },child: Icon(Icons.check_circle),tooltip: "verify the paper",heroTag: "1",),
+          FloatingActionButton.large(onPressed: () async {
+            await PaperService.deletePaper(widget.paper.id);
+            await UserService.decreaseRank(widget.paper['userId']);
+            Navigator.pop(context);
+          },child: Icon(Icons.delete),tooltip: "delete the paper",heroTag: "2",),
+          FloatingActionButton.large(onPressed: () async {
+            await UserService.blockUser(widget.paper['userId']);
+            await PaperService.deletePaper(widget.paper.id);
+            Navigator.pop(context);
+          },child: Icon(Icons.block),tooltip: "block the user",splashColor: Colors.red,backgroundColor: Colors.redAccent,heroTag: "3",),
+        ],
+      ),
       appBar: AppBar(
-        title: Text("${paper['subject']}, ${paper['type']}"),
+        title: Text("${widget.paper['subject']}, ${widget.paper['type']}"),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SizedBox(height: 20),
-            Text('User: ${paper['userId']}'),
-            SizedBox(height: 20),
-            Expanded(
-              child: PDFviewerAndVerifier(
-                downloadablePath: paper['downloadURL'], // Ensure 'filePath' exists in paper document
-                paper: paper,
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SizedBox(height: 20),
+                  Text('User: ${widget.paper['userId']}'),
+                  Text('Year: ${widget.paper['year']}'),
+                  Text(
+                      'Updated at: ${dt.year}/${dt.month}/${dt.day} at ${dt.hour}:${(dt.minute < 10) ? "0" + dt.minute.toString() : dt.minute}'), // this line is just to ensure the minutes format i.e 00 at the end
+                  SizedBox(height: 20),
+                  Expanded(
+                    child: PDFviewerAndVerifier(
+                      downloadablePath: widget.paper['downloadURL'],
+                      paper: widget.paper,
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  if (similarPapers.isNotEmpty) ...[
+                    Text(
+                      'Similar Papers Found:',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: similarPapers.length,
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          leading: Icon(similarPapers[index]['verified']
+                              ? Icons.check_circle
+                              : Icons.cancel),
+                          title: Text(
+                              "${similarPapers[index]['subject']}, ${similarPapers[index]['type']}"),
+                          subtitle:
+                              Text("Year: ${similarPapers[index]['year']}"),
+                          onTap: () =>
+                              navigateToPaperDetail(similarPapers[index]),
+                        );
+                      },
+                    ),
+                    SizedBox(height: 120,)
+                  ],
+                ],
               ),
             ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
-                await PaperService.verifyPaper(paper);
-                Navigator.pop(context);
-              },
-              child: Text('Verify Paper'),
-              style: ElevatedButton.styleFrom(backgroundColor: MyColors.primaryColorLight,foregroundColor: MyColors.white),
-            ),
-            SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () async {
-                await PaperService.deletePaper(paper.id);
-                await UserService.decreaseRank(paper['userId']);
-                Navigator.pop(context);
-              },
-              child: Text('Delete paper'),
-              style: ElevatedButton.styleFrom(backgroundColor: MyColors.primaryColorLight,foregroundColor: MyColors.white),
-            ),
-            SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () async {
-                await UserService.blockUser(paper['userId']);
-                await PaperService.deletePaper(paper.id);
-                Navigator.pop(context);
-              },
-              child: Text('Block User'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
 
 class PDFviewerAndVerifier extends StatefulWidget {
-  const PDFviewerAndVerifier({super.key, required this.downloadablePath, required this.paper});
+  const PDFviewerAndVerifier(
+      {super.key, required this.downloadablePath, required this.paper});
 
   final String downloadablePath;
   final DocumentSnapshot paper;

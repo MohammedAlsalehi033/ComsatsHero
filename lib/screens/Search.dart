@@ -4,6 +4,7 @@ import 'package:comsats_hero/models/papers.dart';
 import 'package:comsats_hero/models/subjexts.dart';
 import 'package:comsats_hero/theme/Colors.dart';
 import 'package:comsats_hero/widgets/Cards.dart';
+import 'package:comsats_hero/widgets/MyDropDownSearch.dart';
 import 'package:flutter/material.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 
@@ -51,6 +52,16 @@ class _SearchScreenState extends State<SearchScreen> {
     }
   }
 
+
+  void setSubject(String? subject){
+    selectedSubject = subject;
+  }
+  void setYear(String? year){
+    selectedYear = year;
+  }
+  void setType(String? type){
+    selectedType = type;
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,97 +74,7 @@ class _SearchScreenState extends State<SearchScreen> {
               'Search for Papers',textAlign: TextAlign.center,
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 20),
-            DropdownSearch<String>(
-              popupProps: PopupProps.menu(
-                showSelectedItems: true,
-                showSearchBox: true,
-                searchDelay: Duration(seconds: 0),
-                title: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: const Text('Select Year'),
-                ),
-                fit: FlexFit.loose,
-                constraints: const BoxConstraints(maxHeight: 300),
-              ),
-              items: years,
-              dropdownDecoratorProps: DropDownDecoratorProps(
-                dropdownSearchDecoration: const InputDecoration(
-                  labelText: "Year",
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              onChanged: (value) {
-                setState(() {
-                  selectedYear = value;
-                });
-              },
-              selectedItem: selectedYear,
-            ),
-            const SizedBox(height: 20),
-            DropdownSearch<String>(
-              popupProps: PopupProps.menu(
-                showSelectedItems: true,
-                showSearchBox: true,
-                title: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: const Text('Select Type'),
-                ),
-                fit: FlexFit.loose,
-                constraints: const BoxConstraints(maxHeight: 300),
-              ),
-              items: types,
-              dropdownDecoratorProps: DropDownDecoratorProps(
-                dropdownSearchDecoration: const InputDecoration(
-                  labelText: "Type",
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              onChanged: (value) {
-                setState(() {
-                  selectedType = value;
-                });
-              },
-              selectedItem: selectedType,
-            ),
-            const SizedBox(height: 20),
-            FutureBuilder<List<String>>(
-              future: subjectsFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  return const Text('Error loading subjects');
-                } else {
-                  final subjects = snapshot.data ?? [];
-                  return DropdownSearch<String>(
-                    popupProps: PopupProps.menu(
-                      showSelectedItems: true,
-                      showSearchBox: true,
-                      title: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: const Text('Select Subject'),
-                      ),
-                      fit: FlexFit.loose,
-                      constraints: const BoxConstraints(maxHeight: 300),
-                    ),
-                    items: subjects,
-                    dropdownDecoratorProps: DropDownDecoratorProps(
-                      dropdownSearchDecoration: const InputDecoration(
-                        labelText: "Subject",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    onChanged: (value) {
-                      setState(() {
-                        selectedSubject = value;
-                      });
-                    },
-                    selectedItem: selectedSubject,
-                  );
-                }
-              },
-            ),
+            Mydropdownsearch(setSubject: setSubject, setType: setType,setYear: setYear,),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _searchPapers,

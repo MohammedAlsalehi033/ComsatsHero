@@ -51,7 +51,23 @@ class PaperService {
     return query.snapshots();
   }
 
+  static Future<List<DocumentSnapshot>> fetchSimilarPapers(
+      String subject,
+      String type,
+      String year,
+      String currentPaperId
+      ) async {
+    var querySnapshot = await FirebaseFirestore.instance
+        .collection('papers')
+        .where('subject', isEqualTo: subject)
+        .where('type', isEqualTo: type)
+        .where('year', isEqualTo: year)
+        .get();
 
+    // Exclude the current paper
+    var similarPapers = querySnapshot.docs.where((doc) => doc.id != currentPaperId).toList();
+    return similarPapers;
+  }
 
   static Future<void> verifyPaper(DocumentSnapshot paper) async {
     await FirebaseFirestore.instance.collection('papers').doc(paper.id).update({
