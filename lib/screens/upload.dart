@@ -198,7 +198,7 @@ class _UploadScreenState extends State<UploadScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(backgroundColor: MyColors.primaryColorLight,),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
@@ -214,6 +214,8 @@ class _UploadScreenState extends State<UploadScreen> {
                 '"Having multiple photos for the exam? Select all your photos at once for quick and easy merging."',
                 style: TextStyle(color: MyColors.textColorSecondary),
               ),
+              const SizedBox(height: 20),
+
               Mydropdownsearch(setSubject: setSubject, setType: setType,setYear: setYear,),
           
               const SizedBox(height: 16),

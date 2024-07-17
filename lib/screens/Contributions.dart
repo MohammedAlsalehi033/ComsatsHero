@@ -38,6 +38,7 @@ class ContributionsScreen extends StatelessWidget {
                 rollNumber: champion['rollNumber'] ?? 'N/A',
                 email: champion['email'] ?? 'N/A',
                 index: index,
+                context: context
               );
             },
           );

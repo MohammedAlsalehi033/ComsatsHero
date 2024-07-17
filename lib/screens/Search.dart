@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:comsats_hero/additionals/lists.dart';
 import 'package:comsats_hero/models/papers.dart';
@@ -23,6 +25,7 @@ class _SearchScreenState extends State<SearchScreen> {
   String? selectedYear;
   String? selectedType;
   String? selectedSubject;
+  String  loading = "select the proper Choices from above, and press on search";
 
   List<Map<String, dynamic>> searchResults = [];
 
@@ -50,6 +53,9 @@ class _SearchScreenState extends State<SearchScreen> {
         const SnackBar(content: Text('Please select a subject')),
       );
     }
+    setState(() {
+      loading = "No paper was found, maybe you can help by uploading some papers";
+    });
   }
 
 
@@ -89,7 +95,7 @@ class _SearchScreenState extends State<SearchScreen> {
             const SizedBox(height: 20),
             Expanded(
               child: searchResults.isEmpty
-                  ? const Center(child: Text('No results found'))
+                  ?  Center(child: Text(loading))
                   : ListView.builder(
                 itemCount: searchResults.length,
                 itemBuilder: (context, index) {

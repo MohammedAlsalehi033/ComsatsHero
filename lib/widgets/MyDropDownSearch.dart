@@ -57,7 +57,7 @@ class _MydropdownsearchState extends State<Mydropdownsearch> {
                   searchDelay: Duration(seconds: 0),
                   title: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: const Text('Select Year'),
+                    child: const Text('you can use the box below to search'),
                   ),
                   fit: FlexFit.loose,
                   constraints: const BoxConstraints(maxHeight: 300),
@@ -95,7 +95,7 @@ class _MydropdownsearchState extends State<Mydropdownsearch> {
                 showSearchBox: true,
                 title: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: const Text('Select Type'),
+                  child: const Text('you can use the box below to search'),
                 ),
                 fit: FlexFit.loose,
                 constraints: const BoxConstraints(maxHeight: 300),
@@ -134,7 +134,7 @@ class _MydropdownsearchState extends State<Mydropdownsearch> {
                   showSearchBox: true,
                   title: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: const Text('Select Subject'),
+                    child: const Text('you can use the box below to search'),
                   ),
                   fit: FlexFit.loose,
                   constraints: const BoxConstraints(maxHeight: 300),

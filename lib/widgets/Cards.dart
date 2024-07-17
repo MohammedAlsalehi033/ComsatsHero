@@ -1,46 +1,45 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:comsats_hero/screens/PDFviewer.dart';
 import 'package:comsats_hero/theme/Colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:comsats_hero/screens/verifiedPapers.dart';
-
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../models/users.dart';
-
+import '../screens/verifiedPapers.dart';
 
 class MyCards {
-
-
-
   static Widget cardForPapers(
       String subject, String? year, String? type, String filePath, BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double fontSize = screenWidth < 360 ? 10.sp : 13.sp;
+    double iconSize = screenWidth < 360 ? 20.sp : 30.sp;
+    double buttonWidth = screenWidth < 360 ? 60.w : 80.w;
+
     return Card(
       elevation: 4.0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15.0),
       ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(10,0,0,0),
+        padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             // Thumbnail or Icon
             Container(
-              width: 60,
-              height: 60,
+              width: 50.w,
+              height: 50.h,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8.0),
+                borderRadius: BorderRadius.circular(8.0.r),
                 color: MyColors.primaryColorLight,
               ),
               child: Icon(
                 Icons.picture_as_pdf,
-                size: 40,
+                size: iconSize,
                 color: Colors.white,
-
               ),
             ),
-            SizedBox(width: 16.0),
+            SizedBox(width: 16.w),
             // Details
             Expanded(
               child: Column(
@@ -49,18 +48,18 @@ class MyCards {
                   Text(
                     subject,
                     style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                      fontSize: subject.length < 20 ? 18 : 12 ,
+                      fontWeight: FontWeight.w500,
                       color: Colors.black87,
                     ),
                   ),
                   if (year != null && type != null)
                     Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
+                      padding: EdgeInsets.only(top: 8.0.h),
                       child: Text(
                         'Year: $year\nType: $type',
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: fontSize * 0.8,
                           color: Colors.black54,
                         ),
                       ),
@@ -68,82 +67,98 @@ class MyCards {
                 ],
               ),
             ),
-            ElevatedButton(onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => PDFviewer(downloadablePath: filePath),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PDFviewer(downloadablePath: filePath),
+                  ),
+                );
+              },
+              child: Text(
+                "Check the Doc",
+                style: TextStyle(color: Colors.white, fontSize: fontSize * 0.8),
+              ),
+              style: ButtonStyle(
+                alignment: Alignment.centerLeft,
+                backgroundColor: MaterialStateProperty.all(MyColors.primaryColorLight),
+                minimumSize: MaterialStateProperty.all(Size(buttonWidth, 50.h)),
+                shape: MaterialStateProperty.all(
+                  ContinuousRectangleBorder(
+                    borderRadius: BorderRadius.circular(20.r),
+                  ),
                 ),
-              );
-            }, child: Text("Check the Doc",style:TextStyle(color: Colors.white,) ,)
-            ,style: ButtonStyle(alignment: Alignment.centerLeft,backgroundColor: WidgetStateProperty.all(MyColors.primaryColorLight),minimumSize: WidgetStateProperty.all(Size.square(100)),shape: WidgetStateProperty.all(ContinuousRectangleBorder(borderRadius: BorderRadius.circular(20)))),),
-            // Download Button
-
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  static Widget cardForAdminVerification (BuildContext context, DocumentSnapshot paper) {
+  static Widget cardForAdminVerification(BuildContext context, DocumentSnapshot paper) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double fontSize = screenWidth < 360 ? 12.sp : 14.sp;
+    double iconSize = screenWidth < 360 ? 20.sp : 24.sp;
 
     return Card(
       elevation: 5,
-      margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+      margin: EdgeInsets.symmetric(vertical: 10.h, horizontal: 15.w),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(15.r),
       ),
       child: ListTile(
-        contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+        contentPadding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 15.w),
         leading: CircleAvatar(
           backgroundColor: MyColors.primaryColorLight,
-          child: Icon(Icons.article, color: Colors.white),
+          child: Icon(Icons.article, color: Colors.white, size: iconSize),
         ),
         title: Text(
           paper['subject'],
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 5),
-            SingleChildScrollView(scrollDirection: Axis.horizontal,
+            SizedBox(height: 5.h),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('User ID: ${paper['userId']}',softWrap: true,overflow: TextOverflow.fade,),
-                  FutureBuilder(future: UserService.getUser(paper['userId']), builder: (context, snapshot) {
-
-                    if(snapshot.hasError){
-                      return Text(" Error");
-                    }
-                    else if (snapshot.connectionState == ConnectionState.waiting){
-                      return CircularProgressIndicator(strokeWidth: 1,value: 1,);
-                    }
-                    else {
-                      try{Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
-                      return Text("  user Ranking: ${data["rank"].toString()}");}catch(e){
-                        return Text("there was some kind of error");
-
+                  Text('User ID: ${paper['userId']}', softWrap: true, overflow: TextOverflow.fade, style: TextStyle(fontSize: fontSize * 0.8)),
+                  FutureBuilder(
+                    future: UserService.getUser(paper['userId']),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasError) {
+                        return Text("Error", style: TextStyle(fontSize: fontSize * 0.8));
+                      } else if (snapshot.connectionState == ConnectionState.waiting) {
+                        return CircularProgressIndicator(strokeWidth: 1, value: 1);
+                      } else {
+                        try {
+                          Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
+                          return Text("  user Ranking: ${data["rank"].toString()}", style: TextStyle(fontSize: fontSize * 0.8));
+                        } catch (e) {
+                          return Text("there was some kind of error", style: TextStyle(fontSize: fontSize * 0.8));
+                        }
                       }
-
-                    }
-                  },),
-
+                    },
+                  ),
                 ],
               ),
             ),
-            Text('Year: ${paper['year']}'),
-            Text('Type: ${paper['type']}'),
+            Text('Year: ${paper['year']}', style: TextStyle(fontSize: fontSize * 0.8)),
+            Text('Type: ${paper['type']}', style: TextStyle(fontSize: fontSize * 0.8)),
           ],
         ),
         trailing: IconButton(
-          icon: Icon(Icons.visibility, color: MyColors.primaryColorLight),
+          icon: Icon(Icons.visibility, color: MyColors.primaryColorLight, size: iconSize),
           onPressed: () {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => (PaperDetailScreen(paper: paper,)),
+                builder: (context) => PaperDetailScreen(paper: paper),
               ),
             );
           },
@@ -152,51 +167,55 @@ class MyCards {
     );
   }
 
-
   static Widget cardForChampionUser({
     required String displayName,
     required int rank,
     required String rollNumber,
     required String email,
-    required int index
+    required int index,
+    required BuildContext context
   }) {
-    Color cardColor = Colors.white; // Default card color
-    Color? iconColor; // Color of the icon (for ranking)
+    double screenWidth = MediaQuery.of(context).size.width;
+    double fontSize = screenWidth < 360 ? 12.sp : 14.sp;
+    Color cardColor = Colors.white;
+    Color? iconColor;
 
     // Determine card color and icon color based on rank
     if (index == 0) {
-      cardColor = Colors.amber[100]!; // Gold color for 1st rank
+      cardColor = Colors.amber[100]!;
       iconColor = Colors.amber;
     } else if (index == 1) {
-      cardColor = Colors.grey[300]!; // Silver color for 2nd rank
+      cardColor = Colors.grey[300]!;
       iconColor = Colors.grey;
     } else if (index == 2) {
-      cardColor = Colors.orange[200]!; // Bronze color for 3rd rank
+      cardColor = Colors.orange[200]!;
       iconColor = Colors.orange;
     }
 
     return Card(
       color: cardColor,
-      margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+      margin: EdgeInsets.symmetric(vertical: 10.h, horizontal: 15.w),
       child: ListTile(
         title: Text(
           displayName,
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Contributions: $rank' ,
-              style: TextStyle(fontSize: 16, color: iconColor),
+              'Contributions: $rank',
+              style: TextStyle(fontSize: fontSize * 0.8, color: iconColor),
             ),
-            SingleChildScrollView(scrollDirection: Axis.horizontal,child: Text('Email: $email')),
-
-            Text('Roll Number: $rollNumber')
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Text('Email: $email', style: TextStyle(fontSize: fontSize * 0.8)),
+            ),
+            Text('Roll Number: $rollNumber', style: TextStyle(fontSize: fontSize * 0.8)),
           ],
         ),
-        trailing: Icon(Icons.star, color: iconColor), // You can customize the icon here
-        onTap: (){},
+        trailing: Icon(Icons.star, color: iconColor, size: fontSize),
+        onTap: () {},
       ),
     );
   }

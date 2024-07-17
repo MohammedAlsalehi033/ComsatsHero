@@ -6,19 +6,14 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'screens/LoginScreen.dart';
-
-
 
 List<CameraDescription> cameras = [];
 
-
-
-Future<void> handler (RemoteMessage message)async {
+Future<void> handler(RemoteMessage message) async {
   print(message.notification!.body!.toString());
 }
-
-
 
 Future<void> main() async {
   await dotenv.load(fileName: ".env");
@@ -30,8 +25,6 @@ Future<void> main() async {
   } on CameraException catch (e) {
     print(e.code);
   }
-
-  WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(
     options: FirebaseOptions(
@@ -46,7 +39,28 @@ Future<void> main() async {
   User? currentUser = FirebaseAuth.instance.currentUser;
 
   await NotificationService.initialize();
-  runApp(currentUser == null ? SignningWidget() : MainClass());
+
+
+
+  runApp(MyApp(currentUser: currentUser));
+}
+
+class MyApp extends StatelessWidget {
+  final User? currentUser;
+
+  MyApp({this.currentUser});
+
+  @override
+  Widget build(BuildContext context) {
+    return ScreenUtilInit(
+      designSize: Size(360, 690),
+      builder: (BuildContext context, Widget? child) {
+        return MaterialApp(
+          home: currentUser == null ? SignningWidget() : MainScreen(),
+        );
+      },
+    );
+  }
 }
 
 class MainClass extends StatefulWidget {
