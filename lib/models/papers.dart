@@ -40,11 +40,11 @@ class PaperService {
     Query query = papersCollection.where('subject', isEqualTo: subject)
         .where('verified', isEqualTo: true);
 
-    if (year != null && year.isNotEmpty) {
+    if (year != null && year.isNotEmpty && year != "any (Will select all options)") {
       query = query.where('year', isEqualTo: year);
     }
 
-    if (type != null && type.isNotEmpty) {
+    if (type != null && type.isNotEmpty && type != "any (Will select all options)") {
       query = query.where('type', isEqualTo: type);
     }
 
@@ -84,6 +84,15 @@ class PaperService {
 
   static Future<void> deletePaper(String id)async {
     await FirebaseFirestore.instance.collection("papers").doc(id).delete();
+  }
+
+  static Future<void> updatePaper(String paperId, Map<String, dynamic> updatedData) async {
+    try {
+      await FirebaseFirestore.instance.collection('papers').doc(paperId).update(updatedData);
+    } catch (e) {
+      print('Failed to update paper: $e');
+      throw e;
+    }
   }
 
 }

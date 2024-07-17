@@ -95,7 +95,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 itemBuilder: (context, index) {
                   final paper = searchResults[index];
                   return MyCards.cardForPapers(
-                      paper['subject'], paper['year'], paper['type'], paper['downloadURL'], context);
+                      paper['subject'], paper['year'].toString() ?? paper['year'] , paper['type'], paper['downloadURL'], context);
                 },
               ),
             ),

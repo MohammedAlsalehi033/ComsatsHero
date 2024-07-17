@@ -49,15 +49,17 @@ class DefaultFirebaseOptions {
     messagingSenderId: '819269999687',
     projectId: 'comsatshero',
     authDomain: 'comsatshero.firebaseapp.com',
+    databaseURL: 'https://comsatshero-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'comsatshero.appspot.com',
     measurementId: 'G-G9JW0RVRYD',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDoAMmPXkEAduFxccg0M38UycWyHXGwJAs',
-    appId: '1:819269999687:android:fa4f60e6359f8dcaa0a562',
+    appId: '1:819269999687:android:3d67ba82f5575e7ea0a562',
     messagingSenderId: '819269999687',
     projectId: 'comsatshero',
+    databaseURL: 'https://comsatshero-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'comsatshero.appspot.com',
   );
 
@@ -66,7 +68,10 @@ class DefaultFirebaseOptions {
     appId: '1:819269999687:ios:da40c0802f33cedea0a562',
     messagingSenderId: '819269999687',
     projectId: 'comsatshero',
+    databaseURL: 'https://comsatshero-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'comsatshero.appspot.com',
+    androidClientId: '819269999687-fglq72as8sbgtu1fad46bdr4lobmqlsq.apps.googleusercontent.com',
+    iosClientId: '819269999687-ed3c46i70l5dm4l0pdreg12u664dkpu0.apps.googleusercontent.com',
     iosBundleId: 'com.example.comsatsHero',
   );
 
@@ -75,7 +80,10 @@ class DefaultFirebaseOptions {
     appId: '1:819269999687:ios:f39427c1797af5aca0a562',
     messagingSenderId: '819269999687',
     projectId: 'comsatshero',
+    databaseURL: 'https://comsatshero-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'comsatshero.appspot.com',
+    androidClientId: '819269999687-fglq72as8sbgtu1fad46bdr4lobmqlsq.apps.googleusercontent.com',
+    iosClientId: '819269999687-ubn7gak424p0od69tttch239pfvcm6ap.apps.googleusercontent.com',
     iosBundleId: 'com.example.comsatsHero.RunnerTests',
   );
 }

@@ -201,65 +201,68 @@ class _UploadScreenState extends State<UploadScreen> {
       appBar: AppBar(),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text(
-              'Search for Papers',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              '"Having multiple photos for the exam? Select all your photos at once for quick and easy merging."',
-              style: TextStyle(color: MyColors.textColorSecondary),
-            ),
-            Mydropdownsearch(setSubject: setSubject, setType: setType,setYear: setYear,),
-
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _showOptions,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: MyColors.primaryColorLight,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                'Search for Papers',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-              child: const Text(
-                'Select Files',
-                style: TextStyle(color: MyColors.textColorLight),
+              const SizedBox(height: 20),
+              Text(
+                '"Having multiple photos for the exam? Select all your photos at once for quick and easy merging."',
+                style: TextStyle(color: MyColors.textColorSecondary),
               ),
-            ),
-            const SizedBox(height: 16),
-            _selectedFiles.isNotEmpty
-                ? Text(
-                    'Selected Files: ${_selectedFiles.map((file) => path.basename(file.path)).join(', ')}')
-                : const Text('No files selected'),
-            const SizedBox(height: 16),
-            _isUploading
-                ? const Center(child: CircularProgressIndicator())
-                : ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: MyColors.primaryColorLight,
+              Mydropdownsearch(setSubject: setSubject, setType: setType,setYear: setYear,),
+          
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _showOptions,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: MyColors.primaryColorLight,
+                ),
+                child: const Text(textAlign: TextAlign.center,
+                  'Select Files',
+                  style: TextStyle(color: MyColors.textColorLight),
+                ),
+              ),
+              const SizedBox(height: 16),
+              _selectedFiles.isNotEmpty
+                  ? Text(textAlign: TextAlign.center,
+                      'Selected Files: ${_selectedFiles.map((file) => path.basename(file.path)).join(', ')}')
+                  : const Text(textAlign: TextAlign.center,'No files selected'),
+              const SizedBox(height: 16),
+              _isUploading
+                  ? const Center(child: CircularProgressIndicator())
+                  : ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: MyColors.primaryColorLight,
+                      ),
+                      onPressed: ()async{
+                        await _combineAndUploadFiles();
+                      },
+                      child: const Text('Combine and Upload',
+                          style: TextStyle(color: MyColors.textColorLight)),
                     ),
-                    onPressed: ()async{
-                      await _combineAndUploadFiles();
-                    },
-                    child: const Text('Combine and Upload',
-                        style: TextStyle(color: MyColors.textColorLight)),
-                  ),
-            _selectedFiles.isNotEmpty
-                ? Column(
-                    children: _selectedFiles.map((file) {
-                      int fileSize = file.lengthSync();
-                      return Text(
-                        "Size of the file " +
-                            (fileSize / (1024 * 1024))
-                                .toString()
-                                .substring(0, 5) +
-                            "MB",
-                        textAlign: TextAlign.left,
-                      );
-                    }).toList(),
-                  )
-                : const Text('No files selected'),
-          ],
+              _selectedFiles.isNotEmpty
+                  ? Column(
+                      children: _selectedFiles.map((file) {
+                        int fileSize = file.lengthSync();
+                        return Text(
+                          "Size of the file " +
+                              (fileSize / (1024 * 1024))
+                                  .toString()
+                                  .substring(0, 5) +
+                              "MB",
+                          textAlign: TextAlign.center,
+                        );
+                      }).toList(),
+                    )
+                  : const Text(textAlign: TextAlign.center,'No files selected'),
+            SizedBox(height: 50,),
+            Text("Only select (Any) if you are not sure about the paper info i.e year and types" , textAlign: TextAlign.center, style: TextStyle(fontSize: 20),)],
+          ),
         ),
       ),
     );

@@ -12,11 +12,23 @@ import 'package:comsats_hero/main.dart';
 class MyFireBaseAuth {
   static Future<void> signInWithGoogle(BuildContext context) async {
     try {
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+      );
+
       // Check if a user is already signed in
       User? currentUser = FirebaseAuth.instance.currentUser;
 
       if (currentUser != null) {
         // If user is already signed in, navigate to MyApp directly
+        Navigator.pop(context); // Dismiss the loading indicator
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => MainClass()),
@@ -32,6 +44,7 @@ class MyFireBaseAuth {
 
       if (googleSignInAccount == null) {
         // The user canceled the sign-in process
+        Navigator.pop(context); // Dismiss the loading indicator
         return;
       }
 
@@ -53,17 +66,16 @@ class MyFireBaseAuth {
       final User user = userCredential.user!;
       print("User signed in: ${user.displayName} (${user.email})");
 
-
       final userInfireBase = await UserService.getUser(user.email!);
       if(!userInfireBase.exists){
         UserService.createUser(user.email!,user.displayName!,user.email!, "");
+        Navigator.pop(context); // Dismiss the loading indicator
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => Profile()),
         );
-      }
-
-      else {
+      } else {
+        Navigator.pop(context); // Dismiss the loading indicator
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => MainScreen()),
@@ -71,8 +83,11 @@ class MyFireBaseAuth {
       }
 
     } catch (e) {
+      Navigator.pop(context); // Dismiss the loading indicator
       print("Error during Google sign in: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error during Google sign in: $e")),
+      );
     }
   }
-
 }

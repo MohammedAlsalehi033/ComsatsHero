@@ -98,6 +98,11 @@ class _VerifiedPapersScreenState extends State<VerifiedPapersScreen> {
   }
 }
 
+
+
+
+
+
 class PaperDetailScreen extends StatefulWidget {
   final DocumentSnapshot paper;
 
@@ -111,10 +116,25 @@ class _PaperDetailScreenState extends State<PaperDetailScreen> {
   List<DocumentSnapshot> similarPapers = [];
   bool isLoading = true;
 
+  TextEditingController yearController = TextEditingController();
+  TextEditingController typeController = TextEditingController();
+  TextEditingController subjectController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
+    yearController.text = widget.paper['year'].toString();
+    typeController.text = widget.paper['type'];
+    subjectController.text = widget.paper['subject'];
     fetchSimilarPapers();
+  }
+
+  @override
+  void dispose() {
+    yearController.dispose();
+    typeController.dispose();
+    subjectController.dispose();
+    super.dispose();
   }
 
   Future<void> fetchSimilarPapers() async {
@@ -148,26 +168,62 @@ class _PaperDetailScreenState extends State<PaperDetailScreen> {
     );
   }
 
+  Future<void> updatePaperDetails() async {
+    try {
+      await PaperService.updatePaper(widget.paper.id, {
+        'year': yearController.text,
+        'type': typeController.text,
+        'subject': subjectController.text,
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Paper details updated successfully')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to update paper details: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     DateTime dt = (widget.paper['uploadDate'] as Timestamp).toDate();
-    return Scaffold(floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
-      floatingActionButton: Row(mainAxisAlignment: MainAxisAlignment.spaceAround,
+    return Scaffold(
+      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          FloatingActionButton.large(onPressed: () async {
-            await PaperService.verifyPaper(widget.paper);
-            Navigator.pop(context);
-          },child: Icon(Icons.check_circle),tooltip: "verify the paper",heroTag: "1",),
-          FloatingActionButton.large(onPressed: () async {
-            await PaperService.deletePaper(widget.paper.id);
-            await UserService.decreaseRank(widget.paper['userId']);
-            Navigator.pop(context);
-          },child: Icon(Icons.delete),tooltip: "delete the paper",heroTag: "2",),
-          FloatingActionButton.large(onPressed: () async {
-            await UserService.blockUser(widget.paper['userId']);
-            await PaperService.deletePaper(widget.paper.id);
-            Navigator.pop(context);
-          },child: Icon(Icons.block),tooltip: "block the user",splashColor: Colors.red,backgroundColor: Colors.redAccent,heroTag: "3",),
+          FloatingActionButton.large(
+            onPressed: () async {
+              await PaperService.verifyPaper(widget.paper);
+              Navigator.pop(context);
+            },
+            child: Icon(Icons.check_circle),
+            tooltip: "verify the paper",
+            heroTag: "1",
+          ),
+          FloatingActionButton.large(
+            onPressed: () async {
+              await PaperService.deletePaper(widget.paper.id);
+              await UserService.decreaseRank(widget.paper['userId']);
+              Navigator.pop(context);
+            },
+            child: Icon(Icons.delete),
+            tooltip: "delete the paper",
+            heroTag: "2",
+          ),
+          FloatingActionButton.large(
+            onPressed: () async {
+              await UserService.blockUser(widget.paper['userId']);
+              await PaperService.deletePaper(widget.paper.id);
+              Navigator.pop(context);
+            },
+            child: Icon(Icons.block),
+            tooltip: "block the user",
+            splashColor: Colors.red,
+            backgroundColor: Colors.redAccent,
+            heroTag: "3",
+          ),
         ],
       ),
       appBar: AppBar(
@@ -176,54 +232,87 @@ class _PaperDetailScreenState extends State<PaperDetailScreen> {
       body: isLoading
           ? Center(child: CircularProgressIndicator())
           : Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  SizedBox(height: 20),
-                  Text('User: ${widget.paper['userId']}'),
-                  Text('Year: ${widget.paper['year']}'),
-                  Text(
-                      'Updated at: ${dt.year}/${dt.month}/${dt.day} at ${dt.hour}:${(dt.minute < 10) ? "0" + dt.minute.toString() : dt.minute}'), // this line is just to ensure the minutes format i.e 00 at the end
-                  SizedBox(height: 20),
-                  Expanded(
-                    child: PDFviewerAndVerifier(
-                      downloadablePath: widget.paper['downloadURL'],
-                      paper: widget.paper,
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  if (similarPapers.isNotEmpty) ...[
-                    Text(
-                      'Similar Papers Found:',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: similarPapers.length,
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                          leading: Icon(similarPapers[index]['verified']
-                              ? Icons.check_circle
-                              : Icons.cancel),
-                          title: Text(
-                              "${similarPapers[index]['subject']}, ${similarPapers[index]['type']}"),
-                          subtitle:
-                              Text("Year: ${similarPapers[index]['year']}"),
-                          onTap: () =>
-                              navigateToPaperDetail(similarPapers[index]),
-                        );
-                      },
-                    ),
-                    SizedBox(height: 120,)
-                  ],
-                ],
+        padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(height: 20),
+              Text('User: ${widget.paper['userId']}'),
+              SizedBox(height: 10),
+              TextField(
+                controller: subjectController,
+                decoration: InputDecoration(labelText: 'Subject'),
               ),
-            ),
+              SizedBox(height: 10),
+              TextField(
+                controller: typeController,
+                decoration: InputDecoration(labelText: 'Type'),
+              ),
+              SizedBox(height: 10),
+              TextField(
+                controller: yearController,
+                decoration: InputDecoration(labelText: 'Year'),
+              ),
+              SizedBox(height: 20),
+              Text(
+                  'Updated at: ${dt.year}/${dt.month}/${dt.day} at ${dt.hour}:${(dt.minute < 10) ? "0" + dt.minute.toString() : dt.minute}'),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: updatePaperDetails,
+                child: Text('Update Paper Details'),
+              ),
+              SizedBox(height: 20),
+              Container(
+                height: 500, // Set a fixed height for the PDF viewer
+                child: PDFviewerAndVerifier(
+                  downloadablePath: widget.paper['downloadURL'],
+                  paper: widget.paper,
+                ),
+              ),
+              SizedBox(height: 20),
+              if (similarPapers.isNotEmpty) ...[
+                Text(
+                  'Similar Papers Found:',
+                  style:
+                  TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                Container(
+                  height: 200, // Set a fixed height for the ListView
+                  child: ListView.builder(
+                    itemCount: similarPapers.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        leading: Icon(similarPapers[index]['verified']
+                            ? Icons.check_circle
+                            : Icons.cancel),
+                        title: Text(
+                            "${similarPapers[index]['subject']}, ${similarPapers[index]['type']}"),
+                        subtitle:
+                        Text("Year: ${similarPapers[index]['year']}"),
+                        onTap: () =>
+                            navigateToPaperDetail(similarPapers[index]),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
+
+
+
+
+
+
+
+
+
 
 class PDFviewerAndVerifier extends StatefulWidget {
   const PDFviewerAndVerifier(

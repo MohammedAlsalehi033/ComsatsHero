@@ -191,8 +191,8 @@ class MyCards {
               style: TextStyle(fontSize: 16, color: iconColor),
             ),
             SingleChildScrollView(scrollDirection: Axis.horizontal,child: Text('Email: $email')),
-            rollNumber == null ?
-            Text('Roll Number: $rollNumber') : Text("Roll Number not available"),
+
+            Text('Roll Number: $rollNumber')
           ],
         ),
         trailing: Icon(Icons.star, color: iconColor), // You can customize the icon here

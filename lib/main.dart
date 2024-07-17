@@ -1,7 +1,9 @@
 import 'package:camera/camera.dart';
 import 'package:comsats_hero/screens/MainScreen.dart';
+import 'package:comsats_hero/services/firebasePushNotifications.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'screens/LoginScreen.dart';
@@ -10,20 +12,27 @@ import 'screens/LoginScreen.dart';
 
 List<CameraDescription> cameras = [];
 
-void main() async{
 
+
+Future<void> handler (RemoteMessage message)async {
+  print(message.notification!.body!.toString());
+}
+
+
+
+Future<void> main() async {
   await dotenv.load(fileName: ".env");
 
   WidgetsFlutterBinding.ensureInitialized();
 
   try {
     cameras = await availableCameras();
-
   } on CameraException catch (e) {
     print(e.code);
   }
 
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(
     options: FirebaseOptions(
       apiKey: dotenv.env['API_KEY']!,
@@ -36,7 +45,7 @@ void main() async{
 
   User? currentUser = FirebaseAuth.instance.currentUser;
 
-
+  await NotificationService.initialize();
   runApp(currentUser == null ? SignningWidget() : MainClass());
 }
 
