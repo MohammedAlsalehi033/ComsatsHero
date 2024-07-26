@@ -57,6 +57,11 @@ dependencies:
   pdf_compressor: ^0.2.0
   firebase_messaging: ^14.9.4
   flutter_screenutil: ^5.9.3
+  flutter_colorpicker: ^1.1.0
+  flutter_spinkit: ^5.2.1
+  percent_indicator: ^4.2.3
+  google_fonts: ^6.2.1
+  restart_app: ^1.2.1
 
 
 dev_dependencies:

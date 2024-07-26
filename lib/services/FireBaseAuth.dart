@@ -1,7 +1,6 @@
 import 'package:comsats_hero/models/users.dart';
 import 'package:comsats_hero/screens/MainScreen.dart';
 import 'package:comsats_hero/screens/Profile.dart';
-import 'package:comsats_hero/screens/Search.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -27,11 +26,10 @@ class MyFireBaseAuth {
       User? currentUser = FirebaseAuth.instance.currentUser;
 
       if (currentUser != null) {
-        // If user is already signed in, navigate to MyApp directly
-        Navigator.pop(context); // Dismiss the loading indicator
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => MainClass()),
+        // If user is already signed in, navigate to MainScreen directly
+        Navigator.of(context, rootNavigator: true).pop(); // Dismiss the loading indicator
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => MainScreen()),
         );
         print("User signed in: ${currentUser.displayName} (${currentUser.email})");
 
@@ -44,7 +42,7 @@ class MyFireBaseAuth {
 
       if (googleSignInAccount == null) {
         // The user canceled the sign-in process
-        Navigator.pop(context); // Dismiss the loading indicator
+        Navigator.of(context, rootNavigator: true).pop(); // Dismiss the loading indicator
         return;
       }
 
@@ -66,24 +64,22 @@ class MyFireBaseAuth {
       final User user = userCredential.user!;
       print("User signed in: ${user.displayName} (${user.email})");
 
-      final userInfireBase = await UserService.getUser(user.email!);
-      if(!userInfireBase.exists){
-        UserService.createUser(user.email!,user.displayName!,user.email!, "");
-        Navigator.pop(context); // Dismiss the loading indicator
-        Navigator.pushReplacement(
-          context,
+      final userInFirebase = await UserService.getUser(user.email!);
+      Navigator.of(context, rootNavigator: true).pop(); // Dismiss the loading indicator
+
+      if (!userInFirebase.exists) {
+        UserService.createUser(user.email!, user.displayName!, user.email!, "");
+        Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => Profile()),
         );
       } else {
-        Navigator.pop(context); // Dismiss the loading indicator
-        Navigator.pushReplacement(
-          context,
+        Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => MainScreen()),
         );
       }
 
     } catch (e) {
-      Navigator.pop(context); // Dismiss the loading indicator
+      Navigator.of(context, rootNavigator: true).pop(); // Dismiss the loading indicator
       print("Error during Google sign in: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error during Google sign in: $e")),

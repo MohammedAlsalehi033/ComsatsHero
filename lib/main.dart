@@ -1,12 +1,17 @@
 import 'package:camera/camera.dart';
+import 'package:comsats_hero/providers/ThemeProvider.dart';
 import 'package:comsats_hero/screens/MainScreen.dart';
 import 'package:comsats_hero/services/firebasePushNotifications.dart';
+import 'package:comsats_hero/theme/Colors.dart';
+import 'package:comsats_hero/theme/Mythemes.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'screens/LoginScreen.dart';
 
 List<CameraDescription> cameras = [];
@@ -40,9 +45,15 @@ Future<void> main() async {
 
   await NotificationService.initialize();
 
-
-
-  runApp(MyApp(currentUser: currentUser));
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider(MyThemes.darkTheme)),
+        ChangeNotifierProvider(create: (_) => MyColors()),
+      ],
+      child: MyApp(currentUser: currentUser,),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -55,24 +66,12 @@ class MyApp extends StatelessWidget {
     return ScreenUtilInit(
       designSize: Size(360, 690),
       builder: (BuildContext context, Widget? child) {
+        final themeProvider = Provider.of<ThemeProvider>(context);
         return MaterialApp(
+          theme: themeProvider.getTheme,
           home: currentUser == null ? SignningWidget() : MainScreen(),
         );
       },
     );
-  }
-}
-
-class MainClass extends StatefulWidget {
-  const MainClass({super.key});
-
-  @override
-  State<MainClass> createState() => _MainClassState();
-}
-
-class _MainClassState extends State<MainClass> {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(home: MainScreen());
   }
 }

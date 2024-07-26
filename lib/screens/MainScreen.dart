@@ -1,12 +1,13 @@
 import 'package:comsats_hero/screens/Contributions.dart';
 import 'package:comsats_hero/screens/Search.dart';
-import 'package:comsats_hero/screens/photoTaker.dart';
+import 'package:comsats_hero/screens/Settings.dart';
 import 'package:comsats_hero/screens/verifiedPapers.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../theme/Colors.dart';
 import 'profile.dart';
 import 'upload.dart';
-import 'package:comsats_hero/screens/SignInTest.dart';
+
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
   static String id = 'home_screen';
@@ -20,8 +21,9 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _screens = [
     const SearchScreen(),
-    const ContributionsScreen(),
+    ContributionsScreen(),
     VerifiedPapersScreen(),
+    SettingsScreen()
   ];
 
   final List<BottomNavigationBarItem> _bottomNavBarItems = [
@@ -37,6 +39,10 @@ class _MainScreenState extends State<MainScreen> {
       icon: Icon(Icons.verified),
       label: 'Verified',
     ),
+    const BottomNavigationBarItem(
+      icon: Icon(Icons.settings),
+      label: 'Settings',
+    ),
   ];
 
   void _onTabTapped(int index) {
@@ -47,10 +53,12 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final myColors = Provider.of<MyColors>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('StudyArchive'),
-        backgroundColor: MyColors.primaryColorLight,
+        backgroundColor: myColors.primaryColorLight,
         actions: [
           IconButton(
             icon: const Icon(Icons.person),
@@ -68,13 +76,13 @@ class _MainScreenState extends State<MainScreen> {
         currentIndex: _currentIndex,
         onTap: _onTabTapped,
         items: _bottomNavBarItems,
-        selectedItemColor: MyColors.secondaryColor,
-        unselectedItemColor: MyColors.grey,
-        backgroundColor: MyColors.white,
+        selectedItemColor: myColors.secondaryColor,
+        unselectedItemColor: myColors.grey,
+        backgroundColor: myColors.white,
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: MyColors.primaryColorLight,
-        child: const Icon(Icons.upload_file, color: MyColors.textColorLight),
+        backgroundColor: myColors.primaryColorLight,
+        child: Icon(Icons.upload_file, color: myColors.textColorLight),
         onPressed: () {
           Navigator.push(
             context,
@@ -82,7 +90,7 @@ class _MainScreenState extends State<MainScreen> {
           );
         },
       ),
-      backgroundColor: MyColors.backgroundColor,
+      backgroundColor: myColors.backgroundColor,
     );
   }
 }

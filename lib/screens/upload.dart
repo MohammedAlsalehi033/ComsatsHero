@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:mime/mime.dart';
 import 'dart:io';
 import 'package:path/path.dart' as path;
+import 'package:percent_indicator/percent_indicator.dart';
 import 'package:pdf_compressor/pdf_compressor.dart';
+import 'package:provider/provider.dart';
 import '../models/users.dart';
 import '../services/uploadService.dart';
 import '../services/file_picker_service.dart';
@@ -19,7 +21,6 @@ class UploadScreen extends StatefulWidget {
 }
 
 class _UploadScreenState extends State<UploadScreen> {
-
   User? currentUser = FirebaseAuth.instance.currentUser;
   List<File> _selectedFiles = [];
   bool _isUploading = false;
@@ -28,8 +29,7 @@ class _UploadScreenState extends State<UploadScreen> {
   String? selectedSubject;
 
   final FilePickerService _filePickerService = FilePickerService();
-  final DocumentScannerService _documentScannerService =
-      DocumentScannerService();
+  final DocumentScannerService _documentScannerService = DocumentScannerService();
 
   Future<void> _pickFiles() async {
     List<File> files = await _filePickerService.pickFiles();
@@ -79,7 +79,6 @@ class _UploadScreenState extends State<UploadScreen> {
       return;
     }
 
-    print(_selectedFiles.length);
     if (containsMultipleFilesWithPdf(_selectedFiles)) {
       if (_selectedFiles.length <= 1) {
         setState(() {
@@ -88,8 +87,7 @@ class _UploadScreenState extends State<UploadScreen> {
 
         await PdfCompressor.compressPdfFile(_selectedFiles[0].path, "${_selectedFiles[0].path}compressed", CompressQuality.HIGH);
         File _compressedFile = File("${_selectedFiles[0].path}compressed");
-        await UploadService.uploadAndAddPaper(_compressedFile, selectedYear!,
-            selectedSubject!, selectedType!, currentUser!.email!);
+        await UploadService.uploadAndAddPaper(_compressedFile, selectedYear!, selectedSubject!, selectedType!, currentUser!.email!);
         setState(() {
           _isUploading = false;
         });
@@ -114,9 +112,8 @@ class _UploadScreenState extends State<UploadScreen> {
     try {
       final combinedPdf = await UploadService.combineFilesToPdf(_selectedFiles);
       await PdfCompressor.compressPdfFile(combinedPdf.path, "${combinedPdf.path}compressed", CompressQuality.HIGH);
-      File _comperssedPDF = File("${combinedPdf.path}compressed");
-      await UploadService.uploadAndAddPaper(_comperssedPDF, selectedYear!,
-          selectedSubject!, selectedType!, currentUser!.email!);
+      File _compressedPDF = File("${combinedPdf.path}compressed");
+      await UploadService.uploadAndAddPaper(_compressedPDF, selectedYear!, selectedSubject!, selectedType!, currentUser!.email!);
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Files combined and uploaded successfully')),
@@ -135,7 +132,6 @@ class _UploadScreenState extends State<UploadScreen> {
     });
 
     Navigator.pop(context);
-
   }
 
   bool isPDF(String path) {
@@ -144,61 +140,52 @@ class _UploadScreenState extends State<UploadScreen> {
   }
 
   bool containsMultipleFilesWithPdf(List<File> files) {
-    bool hasPdf = false;
-
     for (var file in files) {
       if (isPDF(file.path)) {
-          return true;
+        return true;
       }
     }
     return false;
   }
 
-
-  void _showOptions() {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return SafeArea(
-          child: Wrap(
-            children: <Widget>[
-              ListTile(
-                leading: Icon(Icons.photo_camera),
-                title: Text('Scan Document'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _scanDocuments();
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.file_upload),
-                title: Text('Upload File'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _pickFiles();
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
+  void setSubject(String? subject) {
+    setState(() {
+      selectedSubject = subject;
+    });
   }
 
-  void setSubject(String? subject){
-    selectedSubject = subject;
+  void setYear(String? year) {
+    setState(() {
+      selectedYear = year;
+    });
   }
-  void setYear(String? year){
-    selectedYear = year;
+
+  void setType(String? type) {
+    setState(() {
+      selectedType = type;
+    });
   }
-  void setType(String? type){
-    selectedType = type;
+
+  double _getTotalFileSizeInMb() {
+    double totalFilesSize = 0;
+    for (var file in _selectedFiles) {
+      totalFilesSize += file.lengthSync();
+    }
+    return totalFilesSize / (1024 * 1024);
   }
 
   @override
   Widget build(BuildContext context) {
+    double totalFileSizeInMb = _getTotalFileSizeInMb();
+    double percentage = totalFileSizeInMb / 5;
+    final myColors = Provider.of<MyColors>(context);
+
+
     return Scaffold(
-      appBar: AppBar(backgroundColor: MyColors.primaryColorLight,),
+      appBar: AppBar(
+        backgroundColor: myColors.primaryColorLight,
+        title: const Text('Upload Papers'),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
@@ -206,64 +193,128 @@ class _UploadScreenState extends State<UploadScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Text(
-                'Search for Papers',
+                'Upload Papers',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
               Text(
-                '"Having multiple photos for the exam? Select all your photos at once for quick and easy merging."',
-                style: TextStyle(color: MyColors.textColorSecondary),
+                'Having multiple photos for the exam? Select all your photos at once for quick and easy merging.',
+                style: TextStyle(color: myColors.textColorSecondary),
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
-
-              Mydropdownsearch(setSubject: setSubject, setType: setType,setYear: setYear,),
-          
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _showOptions,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: MyColors.primaryColorLight,
-                ),
-                child: const Text(textAlign: TextAlign.center,
-                  'Select Files',
-                  style: TextStyle(color: MyColors.textColorLight),
-                ),
+              Mydropdownsearch(setSubject: setSubject, setType: setType, setYear: setYear),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: _pickFiles,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: myColors.primaryColorLight,
+                      padding: EdgeInsets.symmetric(vertical: 50, horizontal: 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        Icon(Icons.file_upload, size: 50),
+                        SizedBox(height: 10),
+                        Text('Select Files', style: TextStyle(fontSize: 16)),
+                      ],
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: _scanDocuments,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: myColors.primaryColorLight,
+                      padding: EdgeInsets.symmetric(vertical: 50, horizontal: 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        Icon(Icons.camera_alt, size: 50),
+                        SizedBox(height: 10),
+                        Text('Scan Document', style: TextStyle(fontSize: 16)),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               _selectedFiles.isNotEmpty
-                  ? Text(textAlign: TextAlign.center,
-                      'Selected Files: ${_selectedFiles.map((file) => path.basename(file.path)).join(', ')}')
-                  : const Text(textAlign: TextAlign.center,'No files selected'),
-              const SizedBox(height: 16),
+                  ? Column(
+                children: [
+                  SingleChildScrollView(scrollDirection: Axis.horizontal,
+                    child: Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: _selectedFiles.map((file) {
+                            int fileSize = file.lengthSync();
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 5),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                              path.basename(file.path).length >= 30 ?
+                                    path.basename(file.path).substring(0,30) + "....." : path.basename(file.path),
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                  Text(
+                                    "      ${(fileSize / (1024 * 1024)).toStringAsFixed(2)} MB",
+                                    style: TextStyle(fontSize: 16, color: myColors.textColorSecondary),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  CircularPercentIndicator(
+                    radius: 100.0,
+                    lineWidth: 10.0,
+                    percent: percentage > 1 ? 1 : percentage,
+                    center: Text(
+                      "${totalFileSizeInMb.toStringAsFixed(2)} / 5 MB",
+                      style: TextStyle(fontSize: 16, color: percentage > 1 ? Colors.red : myColors.textColorPrimary),
+                    ),
+                    progressColor: percentage > 1 ? Colors.red : myColors.primaryColorLight,
+                    backgroundColor: myColors.textColorSecondary.withOpacity(0.2),
+                  ),
+                ],
+              )
+                  : const Text('No files selected', textAlign: TextAlign.center),
+              const SizedBox(height: 20),
               _isUploading
                   ? const Center(child: CircularProgressIndicator())
                   : ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: MyColors.primaryColorLight,
-                      ),
-                      onPressed: ()async{
-                        await _combineAndUploadFiles();
-                      },
-                      child: const Text('Combine and Upload',
-                          style: TextStyle(color: MyColors.textColorLight)),
-                    ),
-              _selectedFiles.isNotEmpty
-                  ? Column(
-                      children: _selectedFiles.map((file) {
-                        int fileSize = file.lengthSync();
-                        return Text(
-                          "Size of the file " +
-                              (fileSize / (1024 * 1024))
-                                  .toString()
-                                  .substring(0, 5) +
-                              "MB",
-                          textAlign: TextAlign.center,
-                        );
-                      }).toList(),
-                    )
-                  : const Text(textAlign: TextAlign.center,'No files selected'),
-            SizedBox(height: 50,),
-            Text("Only select (Any) if you are not sure about the paper info i.e year and types" , textAlign: TextAlign.center, style: TextStyle(fontSize: 20),)],
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: myColors.primaryColorLight,
+                ),
+                onPressed: _combineAndUploadFiles,
+                child:  Text('Combine and Upload', style: TextStyle(color: myColors.textColorLight)),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                "Only select 'Any' if you are not sure about the paper info (i.e., year and type)",
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16),
+              ),
+            ],
           ),
         ),
       ),

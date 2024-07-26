@@ -1,15 +1,18 @@
 import 'package:comsats_hero/models/subjexts.dart';
 import 'package:comsats_hero/models/types.dart';
 import 'package:comsats_hero/models/years.dart';
+import 'package:comsats_hero/theme/Colors.dart';
 import 'package:flutter/material.dart';
 import 'package:dropdown_search/dropdown_search.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:provider/provider.dart';
 
 class Mydropdownsearch extends StatefulWidget {
   const Mydropdownsearch(
       {super.key,
-      required this.setYear,
-      required this.setType,
-      required this.setSubject});
+        required this.setYear,
+        required this.setType,
+        required this.setSubject});
 
   final void Function(String?) setYear;
   final void Function(String?) setType;
@@ -38,35 +41,47 @@ class _MydropdownsearchState extends State<Mydropdownsearch> {
 
   @override
   Widget build(BuildContext context) {
+    final myColors = Provider.of<MyColors>(context);
     return Column(
       children: [
-
         FutureBuilder<List<String>>(
           future: yearsFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const CircularProgressIndicator();
+              return SpinKitThreeInOut(
+                color: myColors.primaryColorLight,
+                size: 50.0,
+              );
             } else if (snapshot.hasError) {
               return const Text('Error loading years');
             } else {
               final years = snapshot.data ?? [];
-              return  DropdownSearch<String>(
+              return DropdownSearch<String>(
                 popupProps: PopupProps.menu(
                   showSelectedItems: true,
                   showSearchBox: true,
+                  isFilterOnline: true,
                   searchDelay: Duration(seconds: 0),
                   title: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: const Text('you can use the box below to search'),
+                    child: const Text('You can use the box below to search'),
                   ),
                   fit: FlexFit.loose,
                   constraints: const BoxConstraints(maxHeight: 300),
                 ),
                 items: years,
                 dropdownDecoratorProps: DropDownDecoratorProps(
-                  dropdownSearchDecoration: const InputDecoration(
+                  dropdownSearchDecoration: InputDecoration(
                     labelText: "Year",
-                    border: OutlineInputBorder(),
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(color: myColors.primaryColorLight),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: myColors.primaryColorLight),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: myColors.primaryColor),
+                    ),
                   ),
                 ),
                 onChanged: (value) {
@@ -81,49 +96,64 @@ class _MydropdownsearchState extends State<Mydropdownsearch> {
           },
         ),
         const SizedBox(height: 20),
-        FutureBuilder<List<String>>(future: typesFuture, builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
-          } else if (snapshot.hasError) {
-            return const Text('Error loading subjects');
-          }
-          else {
-            final types = snapshot.data ?? [];
-            return   DropdownSearch<String>(
-              popupProps: PopupProps.menu(
-                showSelectedItems: true,
-                showSearchBox: true,
-                title: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: const Text('you can use the box below to search'),
+        FutureBuilder<List<String>>(
+          future: typesFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return SpinKitWaveSpinner(
+                color: myColors.primaryColorLight,
+                size: 50.0,
+              );
+            } else if (snapshot.hasError) {
+              return const Text('Error loading types');
+            } else {
+              final types = snapshot.data ?? [];
+              return DropdownSearch<String>(
+                popupProps: PopupProps.menu(
+                  showSelectedItems: true,
+                  showSearchBox: true,
+                  title: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: const Text('You can use the box below to search'),
+                  ),
+                  fit: FlexFit.loose,
+                  constraints: const BoxConstraints(maxHeight: 300),
                 ),
-                fit: FlexFit.loose,
-                constraints: const BoxConstraints(maxHeight: 300),
-              ),
-              items: types,
-              dropdownDecoratorProps: DropDownDecoratorProps(
-                dropdownSearchDecoration: const InputDecoration(
-                  labelText: "Type",
-                  border: OutlineInputBorder(),
+                items: types,
+                dropdownDecoratorProps: DropDownDecoratorProps(
+                  dropdownSearchDecoration: InputDecoration(
+                    labelText: "Type",
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(color: myColors.primaryColorLight),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: myColors.primaryColorLight),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: myColors.primaryColor),
+                    ),
+                  ),
                 ),
-              ),
-              onChanged: (value) {
-                setState(() {
-                  widget.setType(value);
-                  selectedType = value;
-                });
-              },
-              selectedItem: selectedType,
-            );
-
-        }
-        },),
+                onChanged: (value) {
+                  setState(() {
+                    widget.setType(value);
+                    selectedType = value;
+                  });
+                },
+                selectedItem: selectedType,
+              );
+            }
+          },
+        ),
         const SizedBox(height: 20),
         FutureBuilder<List<String>>(
           future: subjectsFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const CircularProgressIndicator();
+              return SpinKitFoldingCube(
+                color: myColors.primaryColorLight,
+                size: 50.0,
+              );
             } else if (snapshot.hasError) {
               return const Text('Error loading subjects');
             } else {
@@ -134,16 +164,24 @@ class _MydropdownsearchState extends State<Mydropdownsearch> {
                   showSearchBox: true,
                   title: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: const Text('you can use the box below to search'),
+                    child: const Text('You can use the box below to search'),
                   ),
                   fit: FlexFit.loose,
                   constraints: const BoxConstraints(maxHeight: 300),
                 ),
                 items: subjects,
                 dropdownDecoratorProps: DropDownDecoratorProps(
-                  dropdownSearchDecoration: const InputDecoration(
+                  dropdownSearchDecoration: InputDecoration(
                     labelText: "Subject",
-                    border: OutlineInputBorder(),
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(color: myColors.primaryColorLight),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: myColors.primaryColorLight),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: myColors.primaryColor),
+                    ),
                   ),
                 ),
                 onChanged: (value) {

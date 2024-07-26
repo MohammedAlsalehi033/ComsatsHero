@@ -398,6 +398,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_colorpicker:
+    dependency: "direct main"
+    description:
+      name: flutter_colorpicker
+      sha256: "969de5f6f9e2a570ac660fb7b501551451ea2a1ab9e2097e89475f60e07816ea"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
   flutter_dotenv:
     dependency: "direct main"
     description:
@@ -430,6 +438,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.9.3"
+  flutter_spinkit:
+    dependency: "direct main"
+    description:
+      name: flutter_spinkit
+      sha256: d2696eed13732831414595b98863260e33e8882fc069ee80ec35d4ac9ddb0472
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.2.1"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -448,6 +464,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.0"
+  google_fonts:
+    dependency: "direct main"
+    description:
+      name: google_fonts
+      sha256: b1ac0fe2832c9cc95e5e88b57d627c5e68c223b9657f4b96e1487aa9098c7b82
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.2.1"
   google_identity_services_web:
     dependency: transitive
     description:
@@ -760,6 +784,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.4"
+  percent_indicator:
+    dependency: "direct main"
+    description:
+      name: percent_indicator
+      sha256: c37099ad833a883c9d71782321cb65c3a848c21b6939b6185f0ff6640d05814c
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.2.3"
   permission_handler:
     dependency: transitive
     description:
@@ -856,6 +888,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.1"
+  restart_app:
+    dependency: "direct main"
+    description:
+      name: restart_app
+      sha256: b37daeb1c02fcab30e19d9e30b6fdd215bd53577efd927042eb77cf6f09daadb
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.1"
   shared_preferences:
     dependency: "direct main"
     description:

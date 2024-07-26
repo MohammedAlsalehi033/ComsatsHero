@@ -4,16 +4,20 @@ import 'package:comsats_hero/theme/Colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 import '../models/users.dart';
 import '../screens/verifiedPapers.dart';
 
 class MyCards {
+
   static Widget cardForPapers(
       String subject, String? year, String? type, String filePath, BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double fontSize = screenWidth < 360 ? 10.sp : 13.sp;
+    double fontSize = screenWidth < 360 ? 10.sp : 12.sp;
     double iconSize = screenWidth < 360 ? 20.sp : 30.sp;
     double buttonWidth = screenWidth < 360 ? 60.w : 80.w;
+
+    final myColors = Provider.of<MyColors>(context);
 
     return Card(
       elevation: 4.0,
@@ -21,7 +25,7 @@ class MyCards {
         borderRadius: BorderRadius.circular(15.0),
       ),
       child: Padding(
-        padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+        padding: EdgeInsets.all(8.0.w),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -31,7 +35,7 @@ class MyCards {
               height: 50.h,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8.0.r),
-                color: MyColors.primaryColorLight,
+                color: myColors.primaryColorLight,
               ),
               child: Icon(
                 Icons.picture_as_pdf,
@@ -48,7 +52,7 @@ class MyCards {
                   Text(
                     subject,
                     style: TextStyle(
-                      fontSize: subject.length < 20 ? 18 : 12 ,
+                      fontSize: subject.length < 20 ? 15.sp : 12.sp,
                       fontWeight: FontWeight.w500,
                       color: Colors.black87,
                     ),
@@ -82,7 +86,7 @@ class MyCards {
               ),
               style: ButtonStyle(
                 alignment: Alignment.centerLeft,
-                backgroundColor: MaterialStateProperty.all(MyColors.primaryColorLight),
+                backgroundColor: MaterialStateProperty.all(myColors.primaryColorLight),
                 minimumSize: MaterialStateProperty.all(Size(buttonWidth, 50.h)),
                 shape: MaterialStateProperty.all(
                   ContinuousRectangleBorder(
@@ -102,6 +106,8 @@ class MyCards {
     double fontSize = screenWidth < 360 ? 12.sp : 14.sp;
     double iconSize = screenWidth < 360 ? 20.sp : 24.sp;
 
+    final myColors = Provider.of<MyColors>(context);
+
     return Card(
       elevation: 5,
       margin: EdgeInsets.symmetric(vertical: 10.h, horizontal: 15.w),
@@ -111,7 +117,7 @@ class MyCards {
       child: ListTile(
         contentPadding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 15.w),
         leading: CircleAvatar(
-          backgroundColor: MyColors.primaryColorLight,
+          backgroundColor: myColors.primaryColorLight,
           child: Icon(Icons.article, color: Colors.white, size: iconSize),
         ),
         title: Text(
@@ -153,7 +159,7 @@ class MyCards {
           ],
         ),
         trailing: IconButton(
-          icon: Icon(Icons.visibility, color: MyColors.primaryColorLight, size: iconSize),
+          icon: Icon(Icons.visibility, color: myColors.primaryColorLight, size: iconSize),
           onPressed: () {
             Navigator.push(
               context,
@@ -173,28 +179,33 @@ class MyCards {
     required String rollNumber,
     required String email,
     required int index,
-    required BuildContext context
+    required BuildContext context,
+    required bool isCurrentUser,
   }) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double fontSize = screenWidth < 360 ? 12.sp : 14.sp;
-    Color cardColor = Colors.white;
-    Color? iconColor;
+    double fontSize = screenWidth < 360 ? 14 : 17;
 
-    // Determine card color and icon color based on rank
-    if (index == 0) {
-      cardColor = Colors.amber[100]!;
-      iconColor = Colors.amber;
-    } else if (index == 1) {
-      cardColor = Colors.grey[300]!;
-      iconColor = Colors.grey;
-    } else if (index == 2) {
-      cardColor = Colors.orange[200]!;
-      iconColor = Colors.orange;
+    final myColors = Provider.of<MyColors>(context);
+
+    Color cardColor = isCurrentUser ? Colors.blue[100]! : Colors.white;
+    Color? iconColor = isCurrentUser ? Colors.blue : null;
+
+    if (!isCurrentUser) {
+      if (index == 0) {
+        cardColor = Colors.amber[100]!;
+        iconColor = Colors.amber;
+      } else if (index == 1) {
+        cardColor = Colors.grey[300]!;
+        iconColor = Colors.grey;
+      } else if (index == 2) {
+        cardColor = Colors.orange[200]!;
+        iconColor = Colors.orange;
+      }
     }
 
     return Card(
       color: cardColor,
-      margin: EdgeInsets.symmetric(vertical: 10.h, horizontal: 15.w),
+      margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
       child: ListTile(
         title: Text(
           displayName,
