@@ -1,6 +1,6 @@
 # Comsats Hero
 
-Comsats Hero is your go-to app for managing academic paper submissions. Designed with a focus on user-friendliness and security, this app simplifies the process for both students and administrators. 
+Comsats Hero is your go-to app for managing academic paper submissions. Designed with a focus on user-friendliness and security, this app simplifies the process for both students and administrators.
 
 ### Key Features:
 - **Google Sign-In:** Seamless login with your Google account.
@@ -12,6 +12,10 @@ Comsats Hero is your go-to app for managing academic paper submissions. Designed
 - **PDF Viewer:** Built-in PDF viewer for easy review of documents.
 
 Comsats Hero ensures a streamlined experience for managing academic papers, making it an essential tool for students and educational administrators alike. Download now and simplify your paper management process!
+
+## Video Demo
+
+[![Watch the video](https://img.youtube.com/vi/VIDEO_ID/maxresdefault.jpg)](https://github.com/MohammedAlsalehi033/ComsatsHero/blob/master/WhatsApp%20Video%202024-08-11%20at%2000.55.30_4ec32869.mp4)
 
 ## Image Gallery
 
