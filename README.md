@@ -1,16 +1,50 @@
-# comsats_hero
+# Comsats Hero
 
-A new Flutter project.
+Comsats Hero is your go-to app for managing academic paper submissions. Designed with a focus on user-friendliness and security, this app simplifies the process for both students and administrators.
 
-## Getting Started
+### Key Features:
+- **Google Sign-In:** Seamless login with your Google account.
+- **User Profile Management:** Keep track of your profile and submissions effortlessly.
+- **Smart Scanner:** Quickly scan and upload academic papers with our advanced scanner technology.
+- **Paper Verification:** Admins can easily verify submitted papers to maintain the integrity of academic submissions.
+- **Deletion and Blocking:** Admins can delete inappropriate papers and block users if necessary.
+- **Duplicate Detection:** Automatically identifies similar papers to prevent duplicate submissions.
+- **PDF Viewer:** Built-in PDF viewer for easy review of documents.
 
-This project is a starting point for a Flutter application.
+Comsats Hero ensures a streamlined experience for managing academic papers, making it an essential tool for students and educational administrators alike. Download now and simplify your paper management process!
 
-A few resources to get you started if this is your first Flutter project:
+## Video Demo
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+[![Watch the video](https://img.youtube.com/vi/VIDEO_ID/maxresdefault.jpg)](https://github.com/MohammedAlsalehi033/ComsatsHero/blob/master/WhatsApp%20Video%202024-08-11%20at%2000.55.30_4ec32869.mp4)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Image Gallery
+
+### Slide 1
+![Slide 1](https://github.com/MohammedAlsalehi033/ComsatsHero/blob/master/Slide%2016_9%20-%201%20(5).png)
+
+### Slide 2
+![Slide 2](https://github.com/MohammedAlsalehi033/ComsatsHero/blob/master/Slide%2016_9%20-%202.png)
+
+### Slide 3
+![Slide 3](https://github.com/MohammedAlsalehi033/ComsatsHero/blob/master/Slide%2016_9%20-%203.png)
+
+### Slide 4
+![Slide 4](https://github.com/MohammedAlsalehi033/ComsatsHero/blob/master/Slide%2016_9%20-%204.png)
+
+### Slide 5
+![Slide 5](https://github.com/MohammedAlsalehi033/ComsatsHero/blob/master/Slide%2016_9%20-%205%20(1).png)
+
+### Slide 6
+![Slide 6](https://github.com/MohammedAlsalehi033/ComsatsHero/blob/master/Slide%2016_9%20-%205%20(2).png)
+
+### Slide 7
+![Slide 7](https://github.com/MohammedAlsalehi033/ComsatsHero/blob/master/Slide%2016_9%20-%205.png)
+
+### Slide 8
+![Slide 8](https://github.com/MohammedAlsalehi033/ComsatsHero/blob/master/Slide%2016_9%20-%206.png)
+
+### Slide 9
+![Slide 9](https://github.com/MohammedAlsalehi033/ComsatsHero/blob/master/Slide%2016_9%20-%207.png)
+
+### Slide 10
+![Slide 10](https://github.com/MohammedAlsalehi033/ComsatsHero/blob/master/Slide%2016_9%20-%208.png)
