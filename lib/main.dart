@@ -10,7 +10,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'screens/LoginScreen.dart';
 
@@ -66,9 +65,7 @@ class MyApp extends StatelessWidget {
     return ScreenUtilInit(
       designSize: Size(360, 690),
       builder: (BuildContext context, Widget? child) {
-        final themeProvider = Provider.of<ThemeProvider>(context);
         return MaterialApp(
-          theme: themeProvider.getTheme,
           home: currentUser == null ? SignningWidget() : MainScreen(),
         );
       },

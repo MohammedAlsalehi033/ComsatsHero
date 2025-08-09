@@ -1,14 +1,11 @@
-import 'dart:ffi';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:comsats_hero/additionals/lists.dart';
 import 'package:comsats_hero/models/papers.dart';
 import 'package:comsats_hero/models/subjexts.dart';
 import 'package:comsats_hero/theme/Colors.dart';
 import 'package:comsats_hero/widgets/Cards.dart';
 import 'package:comsats_hero/widgets/MyDropDownSearch.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:dropdown_search/dropdown_search.dart';
 import 'package:provider/provider.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -55,40 +52,55 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
     super.dispose();
   }
 
-  void _searchPapers() {
-    if (selectedSubject != null) {
-      Stream<QuerySnapshot> results = PaperService.searchPapers(
-        subject: selectedSubject!,
-        year: selectedYear,
-        type: selectedType,
-      );
+  void _searchPapers() async {
+    final List<ConnectivityResult> connectivityResult = await (Connectivity().checkConnectivity());
 
-      results.listen((QuerySnapshot snapshot) {
-        setState(() {
-          searchResults = snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
-          _controller.forward(from: 0.0); // Trigger the animation on new search results
-        });
-      });
-    } else {
+    if (connectivityResult.contains(ConnectivityResult.none)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a subject')),
+        const SnackBar(content: Text('No internet connection. Please check your connection and try again.')),
       );
+    } else {
+      if (selectedSubject != null) {
+        Stream<QuerySnapshot> results = PaperService.searchPapers(
+          subject: selectedSubject!,
+          year: selectedYear,
+          type: selectedType,
+        );
+
+        results.listen((QuerySnapshot snapshot) {
+          setState(() {
+            searchResults = snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+            _controller.forward(from: 0.0); // Trigger the animation on new search results
+          });
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please select a subject')),
+        );
+      }
     }
+
     setState(() {
       loading = "No paper was found, maybe you can help by uploading some papers";
     });
   }
 
   void setSubject(String? subject) {
-    selectedSubject = subject;
+    setState(() {
+      selectedSubject = subject;
+    });
   }
 
   void setYear(String? year) {
-    selectedYear = year;
+    setState(() {
+      selectedYear = year;
+    });
   }
 
   void setType(String? type) {
-    selectedType = type;
+    setState(() {
+      selectedType = type;
+    });
   }
 
   @override
@@ -101,21 +113,25 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            const SizedBox(height: 20),
             const Text(
               'Search for Papers',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
-
-            Mydropdownsearch(setSubject: setSubject, setType: setType, setYear: setYear),
+            AnimatedOpacity(
+              opacity: 1.0,
+              duration: const Duration(milliseconds: 500),
+              child: Mydropdownsearch(setSubject: setSubject, setType: setType, setYear: setYear),
+            ),
             const SizedBox(height: 20),
             AnimatedContainer(
               duration: const Duration(milliseconds: 500),
               curve: Curves.easeInOut,
               child: ElevatedButton(
                 onPressed: _searchPapers,
-                child:  Text(
+                child: Text(
                   'Search',
                   style: TextStyle(color: myColors.textColorLight),
                 ),

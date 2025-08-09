@@ -64,41 +64,49 @@ class _ContributionsScreenState extends State<ContributionsScreen> with SingleTi
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          if (currentUserChampion != null)
-            SliverPersistentHeader(
-              pinned: true,
-              delegate: _StickyHeaderDelegate(
-                child: MyCards.cardForChampionUser(
-                  displayName: (currentUserChampion!.data() as Map<String, dynamic>)['displayName'] ?? 'N/A',
-                  rank: (currentUserChampion?.data() as Map<String, dynamic>)['rank'] ?? 0,
-                  rollNumber: (currentUserChampion?.data() as Map<String, dynamic>)['rollNumber'] ?? 'N/A',
-                  email: (currentUserChampion?.data() as Map<String, dynamic>)['email'] ?? 'N/A',
-                  index: -1,
-                  context: context,
-                  isCurrentUser: true,
-                ),
-              ),
-            ),
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                var champion = otherChampions[index].data() as Map<String, dynamic>;
-                return SizeTransition(
-                  sizeFactor: _animation,
-                  child: MyCards.cardForChampionUser(
-                    displayName: champion['displayName'] ?? 'N/A',
-                    rank: champion['rank'] ?? 0,
-                    rollNumber: champion['rollNumber'] ?? 'N/A',
-                    email: champion['email'] ?? 'N/A',
-                    index: index,
-                    context: context,
-                    isCurrentUser: false,
+      body: Column(
+
+        children: [SizedBox(height: 10),Text("Top 10 contributors",style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),),
+          SizedBox(height: 10),
+          Expanded(
+            child: CustomScrollView(
+              slivers: [
+                if (currentUserChampion != null)
+                  SliverPersistentHeader(
+                    pinned: true,
+                    delegate: _StickyHeaderDelegate(
+                      child: MyCards.cardForChampionUser(
+                        displayName: (currentUserChampion!.data() as Map<String, dynamic>)['displayName'] ?? 'N/A',
+                        rank: (currentUserChampion?.data() as Map<String, dynamic>)['rank'] ?? 0,
+                        rollNumber: (currentUserChampion?.data() as Map<String, dynamic>)['rollNumber'] ?? 'N/A',
+                        email: (currentUserChampion?.data() as Map<String, dynamic>)['email'] ?? 'N/A',
+                        index: -1,
+                        context: context,
+                        isCurrentUser: true,
+                      ),
+                    ),
                   ),
-                );
-              },
-              childCount: otherChampions.length,
+                SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                      var champion = otherChampions[index].data() as Map<String, dynamic>;
+                      return SizeTransition(
+                        sizeFactor: _animation,
+                        child: MyCards.cardForChampionUser(
+                          displayName: champion['displayName'] ?? 'N/A',
+                          rank: champion['rank'] ?? 0,
+                          rollNumber: champion['rollNumber'] ?? 'N/A',
+                          email: champion['email'] ?? 'N/A',
+                          index: index,
+                          context: context,
+                          isCurrentUser: false,
+                        ),
+                      );
+                    },
+                    childCount: otherChampions.length,
+                  ),
+                ),
+              ],
             ),
           ),
         ],

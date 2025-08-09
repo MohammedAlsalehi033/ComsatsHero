@@ -1,5 +1,4 @@
 import 'package:comsats_hero/models/users.dart';
-import 'package:comsats_hero/theme/Colors.dart';
 import 'package:comsats_hero/widgets/Cards.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -15,6 +14,7 @@ class VerifiedPapersScreen extends StatefulWidget {
 class _VerifiedPapersScreenState extends State<VerifiedPapersScreen> {
   bool isAdmin = false;
   bool isLoading = true;
+  bool trolled = false;
 
   @override
   void initState() {
@@ -58,11 +58,16 @@ class _VerifiedPapersScreenState extends State<VerifiedPapersScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('You do not have access to this page.'),
+             trolled ?  Text('You thought you could be an admin') : Text('You do not have access to this page.'),
               SizedBox(height: 20),
+              trolled
+                  ? Image.network("https://media.tenor.com/tNfwApVE9RAAAAAM/orange-cat-laughing.gif")
+                  : SizedBox.shrink(),
               ElevatedButton(
                 onPressed: () {
-                  // Navigate to an application page or provide instructions to become an admin
+                setState(() {
+                  trolled = true;
+                });
                 },
                 child: Text('Become an Admin'),
               ),
@@ -142,7 +147,7 @@ class _PaperDetailScreenState extends State<PaperDetailScreen> {
       final papers = await PaperService.fetchSimilarPapers(
         widget.paper['subject'],
         widget.paper['type'],
-        widget.paper['year'], // Ensure 'year' exists in paper document
+        widget.paper['year'],
         widget.paper.id,
       );
       setState(() {

@@ -1,11 +1,8 @@
 import 'dart:io';
 import 'package:comsats_hero/models/papers.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'dart:io';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:path_provider/path_provider.dart';
-
 
 
 class UploadService {
@@ -38,4 +35,6 @@ class UploadService {
 
     return output;
   }
+
+
 }

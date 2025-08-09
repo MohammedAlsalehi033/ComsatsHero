@@ -86,9 +86,9 @@ class MyCards {
               ),
               style: ButtonStyle(
                 alignment: Alignment.centerLeft,
-                backgroundColor: MaterialStateProperty.all(myColors.primaryColorLight),
-                minimumSize: MaterialStateProperty.all(Size(buttonWidth, 50.h)),
-                shape: MaterialStateProperty.all(
+                backgroundColor: WidgetStateProperty.all(myColors.primaryColorLight),
+                minimumSize: WidgetStateProperty.all(Size(buttonWidth, 50.h)),
+                shape: WidgetStateProperty.all(
                   ContinuousRectangleBorder(
                     borderRadius: BorderRadius.circular(20.r),
                   ),

@@ -35,39 +35,42 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
-  getwidget: ^4.0.0
-  firebase_auth: ^4.17.8
-  firebase_core: ^2.27.0
+  getwidget: ^6.0.0
+  firebase_auth: ^5.7.0
+  firebase_core: ^3.15.2
   google_sign_in: ^6.2.1
-  cloud_firestore: ^4.15.8
+  cloud_firestore: ^5.6.12
   provider: ^6.1.2
   image_picker: ^1.0.8
   shared_preferences: ^2.2.3
   flutter_dotenv: ^5.1.0
-  firebase_storage: ^11.6.9
-  file_picker: ^8.0.0+1
-  pdf: ^3.3.0
+  firebase_storage: ^12.4.10
+  file_picker: ^10.2.0
+  pdf:
   printing: ^5.6.5
   dropdown_search: ^5.0.6
-  syncfusion_flutter_pdfviewer: ^22.2.12
+  syncfusion_flutter_pdfviewer: ^30.1.41
   camera: ^0.10.6
   cunning_document_scanner: ^1.2.3
   path_provider: ^2.1.3
-  mime: ^1.0.5
-  pdf_compressor: ^0.2.0
-  firebase_messaging: ^14.9.4
+  mime: ^2.0.0
+  pdf_compressor:
+  firebase_messaging: ^15.2.10
   flutter_screenutil: ^5.9.3
   flutter_colorpicker: ^1.1.0
   flutter_spinkit: ^5.2.1
   percent_indicator: ^4.2.3
   google_fonts: ^6.2.1
-  restart_app: ^1.2.1
+  wave: ^0.2.2
+  connectivity_plus: ^6.0.5
+  marquee: ^2.2.3
+
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_launcher_icons: ^0.13.1
+  flutter_launcher_icons: ^0.14.4
   change_app_package_name: ^1.2.0
 flutter_launcher_icons:
   android: true
@@ -93,7 +96,9 @@ flutter:
   uses-material-design: true
   assets:
      - .env
-
+     - assets/login.png
+     - assets/google_icon.png
+     - assets/facebook_icon.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

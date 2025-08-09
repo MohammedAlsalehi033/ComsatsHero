@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class MyColors with ChangeNotifier {
   Color _primaryColor = const Color(0xFF6200EE); // Purple
   Color _primaryColorLight = const Color(0xFFBB86FC); // Light Purple
-  Color _primaryColorDark = const Color(0xFF3700B3); // Dark Purple
+  Color _primaryColorDark = const Color(0xffffffff); // Dark Purple
 
   Color _secondaryColor = const Color(0xFF03DAC6); // Teal
   Color _secondaryColorLight = const Color(0xFF66FFF9); // Light Teal
@@ -79,7 +79,7 @@ class MyColors with ChangeNotifier {
     _accentColorLight = _accentColor.withOpacity(0.7);
     _accentColorDark = _accentColor.withOpacity(0.4);
 
-    _backgroundDarkColor = themeData.colorScheme.background;
+    _backgroundDarkColor = themeData.colorScheme.surface;
 
     _textColorPrimary = themeData.textTheme.displayLarge?.color ?? Colors.black;
     _textColorSecondary = themeData.textTheme.displaySmall?.color ?? Colors.grey;

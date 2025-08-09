@@ -47,9 +47,10 @@ class UserService {
     }
   }
 
-  static Stream<QuerySnapshot<Object?>> getChampions ()  {
-    return usersCollection.orderBy('rank', descending: true).snapshots();
+  static Stream<QuerySnapshot<Object?>> getChampions() {
+    return usersCollection.orderBy('rank', descending: true).limit(10).snapshots();
   }
+
 
   static Future<void> decreaseRank(String userID)async {
     late int currentRank;

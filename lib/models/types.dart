@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
 
 class MyTypes {
   static final DocumentReference subjectsDoc = FirebaseFirestore.instance.collection('generals').doc('types');

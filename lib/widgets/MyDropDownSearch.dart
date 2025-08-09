@@ -53,7 +53,7 @@ class _MydropdownsearchState extends State<Mydropdownsearch> {
                 size: 50.0,
               );
             } else if (snapshot.hasError) {
-              return const Text('Error loading years');
+              return const Text('Error loading years (Problem will be solved in 24 hours)');
             } else {
               final years = snapshot.data ?? [];
               return DropdownSearch<String>(
@@ -68,6 +68,7 @@ class _MydropdownsearchState extends State<Mydropdownsearch> {
                   ),
                   fit: FlexFit.loose,
                   constraints: const BoxConstraints(maxHeight: 300),
+                  menuProps: MenuProps(backgroundColor: myColors.primaryColorDark)
                 ),
                 items: years,
                 dropdownDecoratorProps: DropDownDecoratorProps(
@@ -92,6 +93,7 @@ class _MydropdownsearchState extends State<Mydropdownsearch> {
                 },
                 selectedItem: selectedYear,
               );
+              ;
             }
           },
         ),
@@ -105,7 +107,7 @@ class _MydropdownsearchState extends State<Mydropdownsearch> {
                 size: 50.0,
               );
             } else if (snapshot.hasError) {
-              return const Text('Error loading types');
+              return const Text('Error loading types (Problem will be solved in 24 hours)');
             } else {
               final types = snapshot.data ?? [];
               return DropdownSearch<String>(
@@ -118,6 +120,8 @@ class _MydropdownsearchState extends State<Mydropdownsearch> {
                   ),
                   fit: FlexFit.loose,
                   constraints: const BoxConstraints(maxHeight: 300),
+                    menuProps: MenuProps(backgroundColor: myColors.primaryColorDark)
+
                 ),
                 items: types,
                 dropdownDecoratorProps: DropDownDecoratorProps(
@@ -155,7 +159,7 @@ class _MydropdownsearchState extends State<Mydropdownsearch> {
                 size: 50.0,
               );
             } else if (snapshot.hasError) {
-              return const Text('Error loading subjects');
+              return const Text('Error loading subjects (Problem will be solved in 24 hours)');
             } else {
               final subjects = snapshot.data ?? [];
               return DropdownSearch<String>(
@@ -168,6 +172,8 @@ class _MydropdownsearchState extends State<Mydropdownsearch> {
                   ),
                   fit: FlexFit.loose,
                   constraints: const BoxConstraints(maxHeight: 300),
+                    menuProps: MenuProps(backgroundColor: myColors.primaryColorDark)
+
                 ),
                 items: subjects,
                 dropdownDecoratorProps: DropDownDecoratorProps(

@@ -2,7 +2,9 @@ import 'package:comsats_hero/models/users.dart';
 import 'package:comsats_hero/screens/MainScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../theme/Colors.dart';
 import 'LoginScreen.dart';
 
 class Profile extends StatefulWidget {
@@ -15,6 +17,7 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile> {
   final User? user = FirebaseAuth.instance.currentUser;
   final _formKey = GlobalKey<FormState>();
+
 
   String _session = 'SP';
   String _year = '';
@@ -35,17 +38,22 @@ class _ProfileState extends State<Profile> {
 
   void _signOut() async {
     await FirebaseAuth.instance.signOut();
-    Navigator.pushReplacement(
+    Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (context) => SignningWidget()), // Assuming MainScreen is your login screen
+      MaterialPageRoute(builder: (context) => SignningWidget()),(route) =>false ,
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final myColors = Provider.of<MyColors>(context);
+
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile'),
+        backgroundColor: myColors.primaryColorLight,
+
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -55,9 +63,14 @@ class _ProfileState extends State<Profile> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               if (user?.photoURL != null)
-                CircleAvatar(
-                  radius: 50,
-                  backgroundImage: NetworkImage(user!.photoURL!),
+                ClipOval(
+
+                  child: Image.network(
+                    user!.photoURL!,
+                    fit: BoxFit.scaleDown,
+                    width: 100,
+                    height: 100,
+                  ),
                 )
               else
                 CircleAvatar(

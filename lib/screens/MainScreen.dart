@@ -1,12 +1,14 @@
-import 'package:comsats_hero/screens/Contributions.dart';
-import 'package:comsats_hero/screens/Search.dart';
-import 'package:comsats_hero/screens/Settings.dart';
-import 'package:comsats_hero/screens/verifiedPapers.dart';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../models/news.dart';
 import '../theme/Colors.dart';
 import 'profile.dart';
 import 'upload.dart';
+import 'Contributions.dart';
+import 'Search.dart';
+import 'TimeTableScreen.dart';
+import 'verifiedPapers.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -21,15 +23,19 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _screens = [
     const SearchScreen(),
+    TimeTableScreen(),
     ContributionsScreen(),
     VerifiedPapersScreen(),
-    SettingsScreen()
   ];
 
   final List<BottomNavigationBarItem> _bottomNavBarItems = [
     const BottomNavigationBarItem(
       icon: Icon(Icons.search),
       label: 'Search',
+    ),
+    const BottomNavigationBarItem(
+      icon: Icon(Icons.calendar_month_outlined),
+      label: 'Exams Times',
     ),
     const BottomNavigationBarItem(
       icon: Icon(Icons.list),
@@ -39,10 +45,6 @@ class _MainScreenState extends State<MainScreen> {
       icon: Icon(Icons.verified),
       label: 'Verified',
     ),
-    const BottomNavigationBarItem(
-      icon: Icon(Icons.settings),
-      label: 'Settings',
-    ),
   ];
 
   void _onTabTapped(int index) {
@@ -51,13 +53,74 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
+  List<String> newsList = [];
+  int currentNewsIndex = 0;
+  bool _showNews = false;
+  late Timer _newsTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchNews();
+    _newsTimer = Timer.periodic(Duration(seconds: 6), (timer) {
+      if (newsList.isNotEmpty) {
+        setState(() {
+          currentNewsIndex = (currentNewsIndex + 1) % newsList.length;
+          _showNews = true;
+        });
+
+        Timer(Duration(seconds: 3), () {
+          if (mounted) {
+            setState(() {
+              _showNews = false;
+            });
+          }
+        });
+      }
+    });
+  }
+
+  Future<void> _fetchNews() async {
+    newsList = await news.getNews();
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _newsTimer.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final myColors = Provider.of<MyColors>(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('StudyArchive'),
+        title: AnimatedSwitcher(
+          duration: Duration(seconds: 1),
+          transitionBuilder: (Widget child, Animation<double> animation) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          child: _showNews && newsList.isNotEmpty
+              ? Text(
+            newsList[currentNewsIndex],
+            key: ValueKey<String>(newsList[currentNewsIndex]),
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+            ),
+          )
+              : Text(
+            'Comsats Hero',
+            key: ValueKey<String>('Comsats Hero'),
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        centerTitle: true,
         backgroundColor: myColors.primaryColorLight,
         actions: [
           IconButton(
@@ -71,12 +134,15 @@ class _MainScreenState extends State<MainScreen> {
           ),
         ],
       ),
-      body: _screens[_currentIndex],
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _screens,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: _onTabTapped,
         items: _bottomNavBarItems,
-        selectedItemColor: myColors.secondaryColor,
+        selectedItemColor: myColors.primaryColorLight,
         unselectedItemColor: myColors.grey,
         backgroundColor: myColors.white,
       ),

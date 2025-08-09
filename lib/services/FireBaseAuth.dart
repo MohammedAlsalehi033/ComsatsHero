@@ -4,14 +4,10 @@ import 'package:comsats_hero/screens/Profile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:comsats_hero/theme/Colors.dart';
-import 'package:comsats_hero/main.dart';
 
 class MyFireBaseAuth {
   static Future<void> signInWithGoogle(BuildContext context) async {
     try {
-      // Show loading indicator
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -22,7 +18,6 @@ class MyFireBaseAuth {
         },
       );
 
-      // Check if a user is already signed in
       User? currentUser = FirebaseAuth.instance.currentUser;
 
       if (currentUser != null) {
