@@ -76,7 +76,7 @@ class MyColors with ChangeNotifier {
     _secondaryColorLight = themeData.colorScheme.secondary.withOpacity(0.7);
     _secondaryColorDark = themeData.colorScheme.secondary.withOpacity(0.4);
 
-    _accentColorLight = _accentColor.withOpacity(0.7);
+    _accentColorLight = _accentColor.withOpacity(0.8);
     _accentColorDark = _accentColor.withOpacity(0.4);
 
     _backgroundDarkColor = themeData.colorScheme.surface;
